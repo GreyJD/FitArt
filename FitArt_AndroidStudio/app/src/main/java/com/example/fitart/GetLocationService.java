@@ -1,12 +1,20 @@
 package com.example.fitart;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 public class GetLocationService extends Service {
 
@@ -18,14 +26,54 @@ public class GetLocationService extends Service {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent){
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
         //do location stuff here
+
+        LocationManager locationManager;
+        LocationListener locationListener;
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+                // maybe add some sort of screen animation if we're feelin' spicy
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
+
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+
+            //print permission denied IMPORTANT: the module that starts this service should make this check again
+            // and if true then request permissions, this can only be done in an activity, not a service.
+            //must use requestPermissions for access_fine, acess_coarse, and internet
+        }
+        locationManager.requestLocationUpdates("gps", 25000, 10, locationListener);
+
 
         startForeground();
         return super.onStartCommand(intent, flags, startId);
