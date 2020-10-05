@@ -1,23 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MapsActivity" />
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="-56dp"
+        tools:context=".MapsActivity" />
 
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar"
-        />
+        map:titleTextColor="@color/colorWhite" />
+
+    <ImageView
+        android:id="@+id/action_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:contentDescription="Background_PrimaryDark"
+        map:srcCompat="@color/colorPrimaryDark" />
+
+    <Button
+        android:id="@+id/button_start"
+        android:layout_width="120dp"
+        android:layout_height="58dp"
+        android:layout_alignTop="@+id/action_bar_background"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="68dp"
+        android:background="@color/colorAccent"
+        android:text="Start"
+        android:textColor="@color/colorWhite" />
 
 
 </RelativeLayout>
