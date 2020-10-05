@@ -14,7 +14,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 public class GetLocationService extends Service {
 
@@ -42,7 +41,7 @@ public class GetLocationService extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-
+                //send location to whatever needs it, maybe a workManager?
             }
 
             @Override
@@ -53,10 +52,12 @@ public class GetLocationService extends Service {
             @Override
             public void onProviderEnabled(String s) {
                 // maybe add some sort of screen animation if we're feelin' spicy
+
             }
 
             @Override
             public void onProviderDisabled(String s) {
+                // maybe add some sort of screen animation if we're feelin' spicy
 
             }
         };
@@ -72,6 +73,7 @@ public class GetLocationService extends Service {
             // and if true then request permissions, this can only be done in an activity, not a service.
             //must use requestPermissions for access_fine, acess_coarse, and internet
         }
+
         locationManager.requestLocationUpdates("gps", 25000, 10, locationListener);
 
 
