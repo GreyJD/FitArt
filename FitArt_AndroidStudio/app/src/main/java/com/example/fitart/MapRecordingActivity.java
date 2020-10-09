@@ -12,4 +12,8 @@ public class MapRecordingActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_recording);
     }
+
+
+
+
 }
