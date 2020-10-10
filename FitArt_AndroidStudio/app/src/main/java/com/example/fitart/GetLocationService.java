@@ -42,6 +42,8 @@ public class GetLocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 //send location to whatever needs it, maybe a workManager?
+
+
             }
 
             @Override

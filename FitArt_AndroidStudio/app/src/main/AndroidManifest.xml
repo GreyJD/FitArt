@@ -7,13 +7,9 @@
          location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<<<<<<< HEAD
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE\"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-=======
-    <uses-permission android:name="android.permission.INTERNET" />
->>>>>>> master
 
     <application
         android:allowBackup="true"
@@ -23,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service android:name=".GetLocationService"/>
+        <service android:name="com.example.fitart.GetLocationService"/>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -46,6 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <activity android:name=".MapRecordingActivity"></activity>
+
     </application>
 
 </manifest>
