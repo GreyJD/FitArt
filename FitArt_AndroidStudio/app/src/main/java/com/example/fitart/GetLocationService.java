@@ -30,7 +30,7 @@ public class GetLocationService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
 
         //do location stuff here
 
@@ -41,8 +41,11 @@ public class GetLocationService extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //send location to whatever needs it, maybe a workManager?
-
+                //broadcast location as LOCATION intent
+                Intent sendLocation = new Intent();
+                sendLocation.putExtra("LOCATION", location);
+                sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+                sendBroadcast(sendLocation);
 
             }
 
