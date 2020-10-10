@@ -1,22 +1,19 @@
 package com.example.fitart;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MapRecordingActivity extends AppCompatActivity
 {
     private boolean playPauseButtonClicked = false;
-    BackgroundGPSReciever backgroundGPSReciever;
+    BackgroundGASReceiver backgroundGPSReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -24,10 +21,9 @@ public class MapRecordingActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_recording);
 
-        backgroundGPSReciever = new BackgroundGPSReciever();
+        backgroundGPSReceiver = new BackgroundGASReceiver();
         IntentFilter intentFilter = new IntentFilter("GET_BACKGROUND_LOCATION");
-        registerReceiver(backgroundGPSReciever,intentFilter);
-        Button HijackedText4Testing = findViewById(R.id.button_play_pause);
+        registerReceiver(backgroundGPSReceiver,intentFilter);
 
     }
 
@@ -54,14 +50,14 @@ public class MapRecordingActivity extends AppCompatActivity
     }
 
     //accepts gps data from background service
-    class BackgroundGPSReciever extends BroadcastReceiver{
+    class BackgroundGASReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() == "GET_LOCATION_IN_BACKGROUND"){
                 Location location = intent.getParcelableExtra("LOCATION");
-                //HighJ
-
+                Button hijackedText4Testing = findViewById(R.id.button_play_pause);
+                hijackedText4Testing.setText(location.toString());
 
 
             }
