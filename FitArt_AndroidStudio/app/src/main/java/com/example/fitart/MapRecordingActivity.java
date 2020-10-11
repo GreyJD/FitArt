@@ -1,14 +1,18 @@
 package com.example.fitart;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 public class MapRecordingActivity extends AppCompatActivity
 {
@@ -24,7 +28,6 @@ public class MapRecordingActivity extends AppCompatActivity
         backgroundGPSReceiver = new BackgroundGASReceiver();
         IntentFilter intentFilter = new IntentFilter("GET_BACKGROUND_LOCATION");
         registerReceiver(backgroundGPSReceiver,intentFilter);
-
     }
 
     @Override
@@ -35,19 +38,29 @@ public class MapRecordingActivity extends AppCompatActivity
 
 
 
-    public void playPauseButtonClicked(){
+    public void playPauseButtonClicked(View view){
 
         //starts/stops location gps tracking
         if (!playPauseButtonClicked) {
-            playPauseButtonClicked = true;
-            Intent service_intent = new Intent(this, GetLocationService.class);
-            startService(service_intent);
+
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //permission not granted
+            } else {
+                playPauseButtonClicked = true;
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                startService(service_intent);
+            }
         } else{
             playPauseButtonClicked = false;
             Intent service_intent = new Intent(this, GetLocationService.class);
             stopService(service_intent);
         }
     }
+
+
 
     //accepts gps data from background service
     class BackgroundGASReceiver extends BroadcastReceiver{

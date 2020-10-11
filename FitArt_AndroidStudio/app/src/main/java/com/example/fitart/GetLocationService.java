@@ -45,6 +45,10 @@ public class GetLocationService extends Service {
                 Intent sendLocation = new Intent();
                 sendLocation.putExtra("LOCATION", location);
                 sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+
+                //this should be updated to store data in a matrix and wait for the activity to be
+                // running before broadcasting, but i'm aiming for proof of concept first
+
                 sendBroadcast(sendLocation);
 
             }
@@ -98,6 +102,4 @@ public class GetLocationService extends Service {
                 .setContentIntent(pendingIntent)
                 .build());
     }
-
-
 }
