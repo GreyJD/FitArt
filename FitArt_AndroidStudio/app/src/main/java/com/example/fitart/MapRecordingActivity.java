@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +42,17 @@ public class MapRecordingActivity extends AppCompatActivity
 
     public void playPauseButtonClicked(View view){
 
+
+
+
+
+
+
+        // !! if the service is already running when this activity starts the service will be called multiple times
+        // !!
+
+
+
         //starts/stops location gps tracking
         if (!playPauseButtonClicked) {
 
@@ -58,6 +71,7 @@ public class MapRecordingActivity extends AppCompatActivity
             Intent service_intent = new Intent(this, GetLocationService.class);
             stopService(service_intent);
         }
+
     }
 
 
