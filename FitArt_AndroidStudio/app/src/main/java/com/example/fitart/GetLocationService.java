@@ -16,8 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-public class GetLocationService extends Service {
+import java.util.Vector;
 
+public class GetLocationService extends Service {
 
     // service code used from
     // https://stackoverflow.com/questions/34573109/how-to-make-an-android-app-to-always-run-in-background
@@ -34,24 +35,6 @@ public class GetLocationService extends Service {
     public void onCreate(){
         super.onCreate();
 
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-    }
-
-
-    @Override
-    public int onStartCommand(final Intent intent, int flags, int startId) {
-
-        // !! I think most of this should be done in onCreate instead of potentially creating a
-        // bunch of listeners each time startService is called !!
-
-        // This function should be used to return location data.
-        //
-
-        //do location stuff here
         LocationManager locationManager;
         LocationListener locationListener;
 
@@ -93,7 +76,7 @@ public class GetLocationService extends Service {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
 
             //print permission denied IMPORTANT: the module that starts this service should make this check again
@@ -101,8 +84,25 @@ public class GetLocationService extends Service {
             //must use requestPermissions for access_fine, acess_coarse, and internet
         }
 
-        locationManager.requestLocationUpdates("gps", 25000, 10, locationListener);
+        locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
 
+
+
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        // !! location manager/listener needs to be deallocated here to avoid mem leak !!
+    }
+
+
+    @Override
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+
+        // This function should be used to return location data.
+        //
 
         startForeground();
         return START_NOT_STICKY;
