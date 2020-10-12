@@ -19,7 +19,7 @@ import androidx.core.app.ActivityCompat;
 public class MapRecordingActivity extends AppCompatActivity
 {
     private boolean playPauseButtonClicked = false;
-    BackgroundGASReceiver backgroundGPSReceiver;
+    BackgroundGPSReceiver backgroundGPSReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -27,7 +27,7 @@ public class MapRecordingActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_recording);
 
-        backgroundGPSReceiver = new BackgroundGASReceiver();
+        backgroundGPSReceiver = new BackgroundGPSReceiver();
         IntentFilter intentFilter = new IntentFilter("GET_BACKGROUND_LOCATION");
         registerReceiver(backgroundGPSReceiver,intentFilter);
     }
@@ -77,7 +77,7 @@ public class MapRecordingActivity extends AppCompatActivity
 
 
     //accepts gps data from background service
-    class BackgroundGASReceiver extends BroadcastReceiver{
+    class BackgroundGPSReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
