@@ -1,6 +1,7 @@
 package com.example.fitart;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -15,13 +16,14 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-public class GetLocationService extends Service {
+import java.util.Vector;
 
+public class GetLocationService extends Service {
 
     // service code used from
     // https://stackoverflow.com/questions/34573109/how-to-make-an-android-app-to-always-run-in-background
     private static final int NOTIF_ID = 1;
-    private static final String NOTIF_CHANNEL_ID = "Channel_Id"; // add once channel is in place
+    private static final String NOTIF_CHANNEL_ID = "GetLocationServiceChannel"; // add once channel is in place
 
     @Nullable
     @Override
@@ -30,9 +32,8 @@ public class GetLocationService extends Service {
     }
 
     @Override
-    public int onStartCommand(final Intent intent, int flags, int startId) {
-
-        //do location stuff here
+    public void onCreate(){
+        super.onCreate();
 
         LocationManager locationManager;
         LocationListener locationListener;
@@ -75,7 +76,7 @@ public class GetLocationService extends Service {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
 
             //print permission denied IMPORTANT: the module that starts this service should make this check again
@@ -83,11 +84,28 @@ public class GetLocationService extends Service {
             //must use requestPermissions for access_fine, acess_coarse, and internet
         }
 
-        locationManager.requestLocationUpdates("gps", 25000, 10, locationListener);
+        locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
 
+
+
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        // !! location manager/listener needs to be deallocated here to avoid mem leak !!
+    }
+
+
+    @Override
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+
+        // This function should be used to return location data.
+        //
 
         startForeground();
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     private void startForeground(){
@@ -96,7 +114,7 @@ public class GetLocationService extends Service {
         //NotificationCompat is for old versions, maybe update to Notification.builder? needs research
         startForeground(NOTIF_ID, new NotificationCompat.Builder(this,NOTIF_CHANNEL_ID)
                 .setOngoing(true)
-                //.setSmallIcon(R.drawable.ic_notification) //this is found in res/drawable... there is no icon so it gives an error
+                .setSmallIcon(R.drawable.pototype_small_icon) //this is found in res/drawable... there is no icon so it gives an error
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText("service running in background")
                 .setContentIntent(pendingIntent)
