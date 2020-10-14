@@ -97,6 +97,18 @@ public class GetLocationService extends Service {
 
     @Override
     public void onDestroy(){
+
+        if(!locationList.isEmpty()) {
+            Intent sendLocation = new Intent();
+            //sendLocation.putExtra("LOCATION", locationList); //for sending single location
+            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
+            sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+            sendBroadcast(sendLocation);
+
+            locationList = new ArrayList<LatLng>();
+        }
+
+
         super.onDestroy();
         // !! location manager/listener needs to be deallocated here to avoid mem leak !!
 

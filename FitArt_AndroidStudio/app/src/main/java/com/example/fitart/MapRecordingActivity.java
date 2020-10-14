@@ -57,8 +57,8 @@ public class MapRecordingActivity extends AppCompatActivity
         } else{
             playPauseButtonClicked = false;
             Intent service_intent = new Intent(this, GetLocationService.class);
-            //stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
-            startService(service_intent);
+            stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
+
         }
 
     }
