@@ -33,13 +33,7 @@ public class MapRecordingActivity extends AppCompatActivity
     }
 
 
-
     public void playPauseButtonClicked(View view){
-
-        // !! if the service is already running when this activity starts the service will be called multiple times
-        // !!
-
-
 
         //starts/stops location gps tracking
         if (!playPauseButtonClicked) {
@@ -58,9 +52,7 @@ public class MapRecordingActivity extends AppCompatActivity
             playPauseButtonClicked = false;
             Intent service_intent = new Intent(this, GetLocationService.class);
             stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
-
         }
-
     }
 }
 

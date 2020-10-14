@@ -47,68 +47,43 @@ public class GetLocationService extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //broadcast location as LOCATION intent
-               LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
-               locationList.add(mostRecent);
-
-                //this should be updated to store data in a matrix and wait for the activity to be
-                // running before broadcasting, but i'm aiming for proof of concept first
-
-
-
+                //add each location to LocationList
+                LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
+                locationList.add(mostRecent);
             }
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-
             }
 
             @Override
             public void onProviderEnabled(String s) {
                 // maybe add some sort of screen animation if we're feelin' spicy
-
             }
 
             @Override
             public void onProviderDisabled(String s) {
                 // maybe add some sort of screen animation if we're feelin' spicy
-
             }
         };
-
 
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-
             //print permission denied IMPORTANT: the module that starts this service should make this check again
             // and if true then request permissions, this can only be done in an activity, not a service.
             //must use requestPermissions for access_fine, acess_coarse, and internet
         }
-
         locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
-
-
-
 
     }
 
     @Override
     public void onDestroy(){
 
-        if(!locationList.isEmpty()) {
-            Intent sendLocation = new Intent();
-            //sendLocation.putExtra("LOCATION", locationList); //for sending single location
-            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
-            sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
-            sendBroadcast(sendLocation);
-
-            locationList = new ArrayList<LatLng>();
-        }
-
-
+        broadcastLocationList();
         super.onDestroy();
         // !! location manager/listener needs to be deallocated here to avoid mem leak !!
 
@@ -117,20 +92,10 @@ public class GetLocationService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-
         // This function should be used to return location data.
-        //
-        startForeground();
+        startForeground(); // this could be moved to onCreate for optimization
 
-        if(!locationList.isEmpty()) {
-            Intent sendLocation = new Intent();
-            //sendLocation.putExtra("LOCATION", locationList); //for sending single location
-            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
-            sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
-            sendBroadcast(sendLocation);
-
-            locationList = new ArrayList<LatLng>();
-        }
+        broadcastLocationList();
 
         return START_NOT_STICKY;
     }
@@ -147,4 +112,20 @@ public class GetLocationService extends Service {
                 .setContentIntent(pendingIntent)
                 .build());
     }
+
+    private void broadcastLocationList(){
+        if(!locationList.isEmpty()) {
+            Intent sendLocation = new Intent();
+            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
+            sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+            sendBroadcast(sendLocation);
+
+            locationList = new ArrayList<LatLng>();
+            // I believe reference to the old arraylist is attached to the broadcasted intent so no memory is
+            // leaked here, but I'm more of a cpp guy so this needs a closer look
+        }
+    }
+
 }
+
+
