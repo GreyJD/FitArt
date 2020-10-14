@@ -1,7 +1,6 @@
 package com.example.fitart;
 
 import android.Manifest;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -16,7 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import java.util.Vector;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 
 public class GetLocationService extends Service {
 
@@ -24,6 +25,8 @@ public class GetLocationService extends Service {
     // https://stackoverflow.com/questions/34573109/how-to-make-an-android-app-to-always-run-in-background
     private static final int NOTIF_ID = 1;
     private static final String NOTIF_CHANNEL_ID = "GetLocationServiceChannel"; // add once channel is in place
+
+    ArrayList<LatLng> locationList;
 
     @Nullable
     @Override
@@ -35,6 +38,8 @@ public class GetLocationService extends Service {
     public void onCreate(){
         super.onCreate();
 
+        locationList = new ArrayList<LatLng>();
+
         LocationManager locationManager;
         LocationListener locationListener;
 
@@ -43,14 +48,13 @@ public class GetLocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 //broadcast location as LOCATION intent
-                Intent sendLocation = new Intent();
-                sendLocation.putExtra("LOCATION", location);
-                sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+               LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
+               locationList.add(mostRecent);
 
                 //this should be updated to store data in a matrix and wait for the activity to be
                 // running before broadcasting, but i'm aiming for proof of concept first
 
-                sendBroadcast(sendLocation);
+
 
             }
 
@@ -95,6 +99,7 @@ public class GetLocationService extends Service {
     public void onDestroy(){
         super.onDestroy();
         // !! location manager/listener needs to be deallocated here to avoid mem leak !!
+
     }
 
 
@@ -103,8 +108,18 @@ public class GetLocationService extends Service {
 
         // This function should be used to return location data.
         //
-
         startForeground();
+
+        if(!locationList.isEmpty()) {
+            Intent sendLocation = new Intent();
+            //sendLocation.putExtra("LOCATION", locationList); //for sending single location
+            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
+            sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
+            sendBroadcast(sendLocation);
+
+            locationList = new ArrayList<LatLng>();
+        }
+
         return START_NOT_STICKY;
     }
 

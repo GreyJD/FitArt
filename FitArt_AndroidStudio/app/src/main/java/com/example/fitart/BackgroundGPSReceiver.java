@@ -19,7 +19,8 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() == "GET_LOCATION_IN_BACKGROUND"){
-               lastReceivedLocation = intent.getParcelableExtra("LOCATION");
+               //lastReceivedLocation = intent.getParcelableExtra("LOCATION");
+                lastReceivedLocation = intent.getParcelableArrayListExtra("LOCATION");
             }
         }
     }
