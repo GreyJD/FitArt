@@ -54,6 +54,10 @@ public class MapRecordingActivity extends AppCompatActivity
             stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
         }
     }
+
+
+
+
 }
 
 
