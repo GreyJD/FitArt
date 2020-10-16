@@ -16,6 +16,7 @@ public class App extends Application {
 
     }
 
+    // this creates the notification required by the OS for foreground services (BackgroundGPSReceiver)
     private void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel service_Channel = new NotificationChannel(
