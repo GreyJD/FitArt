@@ -88,5 +88,16 @@
         android:background="@drawable/paint_brush" />
 
 
+    <ImageView
+        android:id="@+id/image_colorSwatch"
+        android:layout_width="45dp"
+        android:layout_height="5dp"
+        android:layout_alignStart="@+id/button_color"
+        android:layout_alignBottom="@+id/button_color"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="-1dp"
+        android:background="@color/colorPrimary"/>
 
 </RelativeLayout>
