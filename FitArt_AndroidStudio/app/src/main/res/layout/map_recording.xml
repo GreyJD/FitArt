@@ -7,14 +7,20 @@
     android:layout_width="match_parent">
 
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+
+    <FrameLayout
+        android:id="@+id/map_recording_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
         android:layout_marginTop="-56dp"
-        tools:context=".MapsActivity" />
+        tools:context=".MapsActivity"
+        />
+
+
+
+
+
 
     <include
         android:id="@+id/toolbar"
@@ -54,6 +60,19 @@
         android:background="@drawable/button_background01"
         android:text="Done"
         android:textColor="@color/colorWhite" />
+
+    <Button
+        android:id="@+id/button_map_art"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="11dp"
+        android:background="@drawable/button_background01"
+        android:text="Map/Art"
+        android:textColor="@color/colorWhite"
+        android:onClick="mapArtButtonClicked"/>
+
 
 
 </RelativeLayout>
