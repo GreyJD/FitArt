@@ -38,7 +38,7 @@ public class GetLocationService extends Service {
     public void onCreate(){
         super.onCreate();
 
-        locationList = new ArrayList<LatLng>();
+        locationList = new ArrayList<>();
 
         LocationManager locationManager;
         LocationListener locationListener;
@@ -101,7 +101,7 @@ public class GetLocationService extends Service {
     }
 
     private void startForeground(){
-        Intent notificationIntent = new Intent(this, /**/MapsActivity.class/**/); //must alter if this moves to a new activity
+        Intent notificationIntent = new Intent(this, /**/MapRecordingActivity.class/**/); //must alter if this moves to a new activity
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         //NotificationCompat is for old versions, maybe update to Notification.builder? needs research
         startForeground(NOTIF_ID, new NotificationCompat.Builder(this,NOTIF_CHANNEL_ID)
@@ -120,7 +120,7 @@ public class GetLocationService extends Service {
             sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
             sendBroadcast(sendLocation);
 
-            locationList = new ArrayList<LatLng>();
+            locationList = new ArrayList<>();
             // I believe reference to the old arraylist is attached to the broadcasted intent so no memory is
             // leaked here, but I'm more of a cpp guy so this needs a closer look
         }
