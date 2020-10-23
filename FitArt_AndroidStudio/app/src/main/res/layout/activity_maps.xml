@@ -16,11 +16,6 @@
         android:layout_marginTop="-56dp"
         tools:context=".MapsActivity" />
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"
-        map:titleTextColor="@color/colorWhite" />
-
     <ImageView
         android:id="@+id/action_bar_background"
         android:layout_width="match_parent"
@@ -41,6 +36,11 @@
         android:background="@drawable/button_background01"
         android:text="Start"
         android:textColor="@color/colorWhite" />
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        map:titleTextColor="@color/colorWhite" />
 
 
 </RelativeLayout>
