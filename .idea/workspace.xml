@@ -35,17 +35,20 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="324" y="152" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1601398952229">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="432" y="205" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602277672099">
+      <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="324" y="152" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601398952229" />
-    <state x="650" y="252" key="FileChooserDialogImpl" timestamp="1601398965707">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="432" y="205" key="#com.intellij.execution.impl.EditConfigurationsDialog/3840.-2.1920.1020/0.0.2560.1400@0.0.2560.1400" timestamp="1602277672099" />
+    <state x="867" y="339" key="FileChooserDialogImpl" timestamp="1602277678935">
+      <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="650" y="252" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1601398965707" />
-    <state x="567" y="321" key="com.intellij.ide.util.TipDialog" timestamp="1601398909094">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="867" y="339" key="FileChooserDialogImpl/3840.-2.1920.1020/0.0.2560.1400@0.0.2560.1400" timestamp="1602277678935" />
+    <state x="756" y="432" key="com.intellij.ide.util.TipDialog" timestamp="1602277618763">
+      <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="567" y="321" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601398909094" />
+    <state x="756" y="432" key="com.intellij.ide.util.TipDialog/3840.-2.1920.1020/0.0.2560.1400@0.0.2560.1400" timestamp="1602277618763" />
   </component>
 </project>
