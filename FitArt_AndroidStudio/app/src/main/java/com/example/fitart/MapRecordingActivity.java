@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.MapFragment;
 public class MapRecordingActivity extends AppCompatActivity
 {
     private boolean playPauseButtonClicked = false;
+    private int mapArtButtonClicked = 0;
     BackgroundGPSReceiver backgroundGPSReceiver;
 
     @Override
@@ -76,8 +78,44 @@ public class MapRecordingActivity extends AppCompatActivity
 
 
     public void mapArtButtonClicked(View view) {
+        //there are 3 states involved here
+        // 1 - map fragment only
+        // 2 - openGL running with map fragment on backstack
+        // 3 - map running with openGL on backstack
+
+
+
 
         // should add current map or art fragment to backstack and swap active fragments
+        if (mapArtButtonClicked == 0){
+            // 1 - map fragment only
+            // if this button has not been clicked replace map fragment with openGl fragment
+            mapArtButtonClicked ++;
+            OpenGlFragment openGlFragment = new OpenGlFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.map_recording_fragment_container, openGlFragment);
+            transaction.addToBackStack("map_frag");
+            transaction.commit();
+
+            int p = 100;
+
+        }else if(mapArtButtonClicked == 1){
+            // 2 - openGL running with map fragment on backstack
+            //
+
+
+
+            mapArtButtonClicked ++;
+
+        }else if(mapArtButtonClicked == 2){
+            // 3 - map running with openGL on backstack
+
+            mapArtButtonClicked --;
+
+        }else{
+            //error state reached
+        }
+
 
 
 /* starter xml code for opengl fragment (causes crashing if inserted)
