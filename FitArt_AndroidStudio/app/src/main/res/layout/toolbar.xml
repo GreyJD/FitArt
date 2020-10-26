@@ -6,7 +6,6 @@
     android:layout_height="?attr/actionBarSize"
     android:background="@color/colorPrimaryDark"
     android:theme="@style/AppTheme"
-    app:navigationIcon="@drawable/hamburger"
     app:title="FitArt"
     app:titleTextColor="@color/colorAccent">
 
