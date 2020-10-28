@@ -3,7 +3,10 @@ package com.example.fitart;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -28,6 +31,10 @@ public class GetLocationService extends Service {
 
     ArrayList<LatLng> locationList;
 
+    boolean isActivityRunning = true;
+    IsActivityOnReceiver isActivityOnReceiver;
+
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -50,6 +57,9 @@ public class GetLocationService extends Service {
                 //add each location to LocationList
                 LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
                 locationList.add(mostRecent);
+                if(isActivityRunning){
+                    broadcastLocationList();
+                }
             }
 
             @Override
@@ -77,6 +87,14 @@ public class GetLocationService extends Service {
             //must use requestPermissions for access_fine, acess_coarse, and internet
         }
         locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
+
+        // registers a broadcast receiver to determine if the activity we broadcast location pings
+        // to is
+        isActivityOnReceiver = new IsActivityOnReceiver();
+        IntentFilter intentFilter = new IntentFilter("MAP_REC_ACT_STATE");
+        this.registerReceiver(isActivityOnReceiver,intentFilter);
+
+
 
     }
 
@@ -125,6 +143,24 @@ public class GetLocationService extends Service {
             // leaked here, but I'm more of a cpp guy so this needs a closer look
         }
     }
+
+    private class IsActivityOnReceiver extends BroadcastReceiver {
+
+        //must determine if activity is running to either send location data to MapRecordingActivity
+        // via broadcast or store it in a waiting array to be sent when activity is started again
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == "MAP_REC_ACT_STATE"){
+               isActivityRunning = intent.getBooleanExtra("IS_RUNNING",false);
+            }
+        }
+    }
+
+
+
+
+
 
 }
 

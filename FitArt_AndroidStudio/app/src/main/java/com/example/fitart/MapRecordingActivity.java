@@ -2,6 +2,8 @@ package com.example.fitart;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -16,8 +18,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.maps.MapFragment;
-
-
+import com.google.android.gms.maps.model.LatLng;
 
 
 import android.graphics.PorterDuff;
@@ -32,6 +33,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -72,6 +75,25 @@ public class MapRecordingActivity extends AppCompatActivity
 
 
     }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        Intent sendActivityState = new Intent();
+        sendActivityState.putExtra("IS_RUNNING", true);
+        sendActivityState.setAction("MAP_REC_ACT_STATE");
+        sendBroadcast(sendActivityState);
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        Intent sendActivityState = new Intent();
+        sendActivityState.putExtra("IS_RUNNING", false);
+        sendActivityState.setAction("MAP_REC_ACT_STATE");
+        sendBroadcast(sendActivityState);
+    }
+
 
     @Override
     protected void onDestroy(){
@@ -224,6 +246,8 @@ public class MapRecordingActivity extends AppCompatActivity
         ambilWarnaDialog.show();
 
     }
+
+
 }
 
 
