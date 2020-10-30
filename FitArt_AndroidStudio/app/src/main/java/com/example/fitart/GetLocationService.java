@@ -31,8 +31,8 @@ public class GetLocationService extends Service {
 
     ArrayList<LatLng> locationList;
 
-    boolean isActivityRunning = true;
-    IsActivityOnReceiver isActivityOnReceiver;
+   // boolean isActivityRunning = true;
+   // IsActivityOnReceiver isActivityOnReceiver;
 
 
     @Nullable
@@ -57,9 +57,9 @@ public class GetLocationService extends Service {
                 //add each location to LocationList
                 LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
                 locationList.add(mostRecent);
-                if(isActivityRunning){
-                    broadcastLocationList();
-                }
+              //  if(isActivityRunning){
+              //      broadcastLocationList();
+              //  }
             }
 
             @Override
@@ -90,9 +90,9 @@ public class GetLocationService extends Service {
 
         // registers a broadcast receiver to determine if the activity we broadcast location pings
         // to is
-        isActivityOnReceiver = new IsActivityOnReceiver();
-        IntentFilter intentFilter = new IntentFilter("MAP_REC_ACT_STATE");
-        this.registerReceiver(isActivityOnReceiver,intentFilter);
+        //isActivityOnReceiver = new IsActivityOnReceiver();
+        //IntentFilter intentFilter = new IntentFilter("MAP_REC_ACT_STATE");
+        //this.registerReceiver(isActivityOnReceiver,intentFilter);
 
 
 
@@ -113,7 +113,7 @@ public class GetLocationService extends Service {
         // This function should be used to return location data.
         startForeground(); // this could be moved to onCreate for optimization
 
-        broadcastLocationList();
+       // broadcastLocationList();
 
         return START_NOT_STICKY;
     }
@@ -144,7 +144,7 @@ public class GetLocationService extends Service {
         }
     }
 
-    private class IsActivityOnReceiver extends BroadcastReceiver {
+  /*  private class IsActivityOnReceiver extends BroadcastReceiver {
 
         //must determine if activity is running to either send location data to MapRecordingActivity
         // via broadcast or store it in a waiting array to be sent when activity is started again
@@ -158,7 +158,7 @@ public class GetLocationService extends Service {
     }
 
 
-
+*/
 
 
 
