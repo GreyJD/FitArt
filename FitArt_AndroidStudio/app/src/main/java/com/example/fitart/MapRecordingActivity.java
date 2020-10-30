@@ -77,30 +77,23 @@ public class MapRecordingActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart(){
-        super.onStart();
-        Intent sendActivityState = new Intent();
-        sendActivityState.putExtra("IS_RUNNING", true);
-        sendActivityState.setAction("MAP_REC_ACT_STATE");
-        sendBroadcast(sendActivityState);
+    public void onPause(){
+        super.onPause();
+        if(playPauseButtonClicked){
+            Intent service_intent = new Intent(this, GetLocationService.class);
+            startService(service_intent);
+
+        }
+
     }
 
     @Override
-    protected void onStop(){
-        super.onStop();
-        Intent sendActivityState = new Intent();
-        sendActivityState.putExtra("IS_RUNNING", false);
-        sendActivityState.setAction("MAP_REC_ACT_STATE");
-        sendBroadcast(sendActivityState);
-    }
-
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
+    public void onResume(){
+        super.onResume();
+        Intent service_intent = new Intent(this, GetLocationService.class);
+        stopService(service_intent);
 
     }
-
 
     public void playPauseButtonClicked(View view){
 
@@ -114,13 +107,13 @@ public class MapRecordingActivity extends AppCompatActivity
                 //permission not granted
             } else {
                 playPauseButtonClicked = true;
-                Intent service_intent = new Intent(this, GetLocationService.class);
-                startService(service_intent);
+                //Intent service_intent = new Intent(this, GetLocationService.class);
+                //startService(service_intent);
             }
         } else{
             playPauseButtonClicked = false;
-            Intent service_intent = new Intent(this, GetLocationService.class);
-            stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
+           // Intent service_intent = new Intent(this, GetLocationService.class);
+           // stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
         }
     }
 
