@@ -37,6 +37,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -48,13 +54,17 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private GoogleMap mMap;
     private boolean playPauseButtonClicked = false;
+
     private  ArrayList<PolyLineData> currentPolyList = new ArrayList<>() ;
     private Button playPauseButton;
     private Button doneButton;
     private LatLng lastLocation = null;
     private Marker lastLocationMarker = null;
 
-
+    private static SeekBar seek_bar;
+    ImageButton colorButton;
+    ImageView colorSwatchImage;
+    int defaultColor;
 
 
     @Override
@@ -75,6 +85,11 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         doneButton.setOnClickListener(doneButtonOnClickListener);
 
         final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
+
+        //sets up listener for broadcasts. moves gps data from service to activity
+        backgroundGPSReceiver = new BackgroundGPSReceiver(dummy_list);//swap dummy_list with sam's list
+        IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
+        this.registerReceiver(backgroundGPSReceiver,intentFilter);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -115,6 +130,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                         mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2));
                         PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
                         currentPolyList.add(lineData);
+
 
                         lastLocation = newLocation;
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
@@ -193,12 +209,28 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
 
+
+
+
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(playPauseButtonClicked){
+            Intent service_intent = new Intent(this, GetLocationService.class);
+            startService(service_intent);
+
+        }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        Intent service_intent = new Intent(this, GetLocationService.class);
+        stopService(service_intent);
+
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -274,18 +306,26 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         //starts/stops location gps tracking
 
 
-                if(playPauseButtonClicked == false){
-                    playPauseButtonClicked = true;
-                    Toast.makeText(this, "play button clicked", Toast.LENGTH_SHORT).show();
-
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                }
-                else{
-                    playPauseButtonClicked = false;
-                    Toast.makeText(this, "pause button clicked?", Toast.LENGTH_SHORT).show();
-                }
-
+        //starts/stops location gps tracking
+        if (!playPauseButtonClicked) {
+            //first guarantee permission to use gps
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //permission not granted
+            } else {
+                playPauseButtonClicked = true;
+                //Intent service_intent = new Intent(this, GetLocationService.class); // old code - remove if/when irrelevant
+                //startService(service_intent);
             }
+        } else{
+            playPauseButtonClicked = false;
+            // Intent service_intent = new Intent(this, GetLocationService.class); //old code - remove if/when irrelevant
+            // stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
+        }
+    }
+
 
      public void doneButtonClicked(View view){
 
@@ -324,6 +364,31 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
      }
 
 }
+
+    public void openColorPicker()
+    {
+        AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(this, defaultColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                defaultColor = color;
+
+                //Attempt to update Color Swatch...Failed
+                PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
+                colorSwatchImage.setBackgroundColor(defaultColor);
+
+                //Debug purposes
+                Toast.makeText(MapRecordingActivity.this, "color:" + defaultColor, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        ambilWarnaDialog.show();
+
+    }
 
 
 
