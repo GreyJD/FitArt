@@ -11,12 +11,21 @@ import java.util.ArrayList;
 public class BackgroundGPSReceiver extends BroadcastReceiver{
 
         //accepts gps data from background service
-        ArrayList<LatLng> lastReceivedLocation;
+        ArrayList<LatLng> receivedList;
+        ArrayList<LatLng> activityList;
+
+        public BackgroundGPSReceiver(ArrayList<LatLng> list){
+            activityList = list;
+        }
+
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() == "GET_LOCATION_IN_BACKGROUND"){
-                lastReceivedLocation = intent.getParcelableArrayListExtra("LOCATION");
+                receivedList = intent.getParcelableArrayListExtra("LOCATION");
+                if(receivedList.size() > 0){
+                    activityList.addAll(receivedList);
+                }
             }
         }
     }

@@ -43,6 +43,8 @@ public class MapRecordingActivity extends AppCompatActivity
     private boolean playPauseButtonClicked = false;
     private int mapArtButtonClicked = 0;
     BackgroundGPSReceiver backgroundGPSReceiver;
+    ArrayList<LatLng> dummy_list = new ArrayList<LatLng>(); // sam's branch should use something like this
+    // remove dummy_list variable after merge
 
     private static SeekBar seek_bar;
     ImageButton colorButton;
@@ -58,14 +60,14 @@ public class MapRecordingActivity extends AppCompatActivity
 
 
         //sets up listener for broadcasts. moves gps data from service to activity
-        backgroundGPSReceiver = new BackgroundGPSReceiver();
+        backgroundGPSReceiver = new BackgroundGPSReceiver(dummy_list);//swap dummy_list with sam's list
         IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
         this.registerReceiver(backgroundGPSReceiver,intentFilter);
 
         //must add map fragment here (dynamic fragment allocation)
         //having the fragment declared in the .xml file is static fragment allocation
 
-        //https://www.youtube.com/watch?v=li12Kmvk7BQ    this is the tutorial used for adding fragments dynamically
+        // https://www.youtube.com/watch?v=li12Kmvk7BQ    this is the tutorial used for adding fragments dynamically
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -84,7 +86,6 @@ public class MapRecordingActivity extends AppCompatActivity
             startService(service_intent);
 
         }
-
     }
 
     @Override
@@ -107,12 +108,12 @@ public class MapRecordingActivity extends AppCompatActivity
                 //permission not granted
             } else {
                 playPauseButtonClicked = true;
-                //Intent service_intent = new Intent(this, GetLocationService.class);
+                //Intent service_intent = new Intent(this, GetLocationService.class); // old code - remove if/when irrelevant
                 //startService(service_intent);
             }
         } else{
             playPauseButtonClicked = false;
-           // Intent service_intent = new Intent(this, GetLocationService.class);
+           // Intent service_intent = new Intent(this, GetLocationService.class); //old code - remove if/when irrelevant
            // stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
         }
     }
@@ -125,35 +126,40 @@ public class MapRecordingActivity extends AppCompatActivity
         // 3 - map running with openGL on backstack
 
 
-
-
         // should add current map or art fragment to backstack and swap active fragments
-        if (mapArtButtonClicked == 0){
+        if (mapArtButtonClicked == 0) {
             // 1 - map fragment only
             // if this button has not been clicked replace map fragment with openGl fragment
-            mapArtButtonClicked ++;
+            mapArtButtonClicked++;
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
             OpenGlFragment openGlFragment = new OpenGlFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.map_recording_fragment_container, openGlFragment);
             transaction.addToBackStack("map_frag");
             transaction.commit();
 
+            //OpenGlFragment openGlFragment = new OpenGlFragment();
+            //FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            //transaction.replace(R.id.map_recording_fragment_container, openGlFragment);
+            //transaction.addToBackStack("map_frag");
+            //transaction.commit();
+
             int p = 100;
 
-        }else if(mapArtButtonClicked == 1){
+        } else if (mapArtButtonClicked == 1) {
             // 2 - openGL running with map fragment on backstack
             //
 
 
+            mapArtButtonClicked++;
 
-            mapArtButtonClicked ++;
-
-        }else if(mapArtButtonClicked == 2){
+        } else if (mapArtButtonClicked == 2) {
             // 3 - map running with openGL on backstack
 
-            mapArtButtonClicked --;
+            mapArtButtonClicked--;
 
-        }else{
+        } else {
             //error state reached
         }
 
@@ -170,23 +176,23 @@ public class MapRecordingActivity extends AppCompatActivity
         />
 
   */
-
+    }
         //Find Variables
-        colorButton = findViewById(R.id.button_color);
-        colorSwatchImage = findViewById(R.id.image_colorSwatch);
-        seekbar();
+      //  colorButton = findViewById(R.id.button_color);
+      //  colorSwatchImage = findViewById(R.id.image_colorSwatch);
+       // seekbar();
 
         //Assign default color
-        defaultColor = ContextCompat.getColor(MapRecordingActivity.this, R.color.colorPrimary);
+      //  defaultColor = ContextCompat.getColor(MapRecordingActivity.this, R.color.colorPrimary);
 
         //On.click.listener for color palette
-        colorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openColorPicker();
-            }
-        });
-    }
+      //  colorButton.setOnClickListener(new View.OnClickListener() {
+     //       @Override
+     //       public void onClick(View v) {
+      //          openColorPicker();
+    //        }
+     //   });
+    //}
 
     //Brush Size Controls
     public void seekbar()
