@@ -215,11 +215,11 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
         // https://www.youtube.com/watch?v=li12Kmvk7BQ    this is the tutorial used for adding fragments dynamically
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        MapsFragment mapsFragment = new MapsFragment();
-        fragmentTransaction.add(R.id.map_recording_fragment_container, mapsFragment);
-        fragmentTransaction.commit();
+        //FragmentManager fragmentManager = getSupportFragmentManager();
+        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //MapsFragment mapsFragment = new MapsFragment();
+        //fragmentTransaction.add(R.id.map_recording_fragment_container, mapsFragment);
+        //fragmentTransaction.commit();
 
 
     }
@@ -313,12 +313,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
             // if this button has not been clicked replace map fragment with openGl fragment
             mapArtButtonClicked++;
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            OpenGlFragment openGlFragment = new OpenGlFragment();
-            transaction.replace(R.id.map_recording_fragment_container, openGlFragment);
-            transaction.addToBackStack("map_frag");
-            transaction.commit();
+         //   FragmentManager fragmentManager = getSupportFragmentManager();
+           // FragmentTransaction transaction = fragmentManager.beginTransaction();
+           // OpenGlFragment openGlFragment = new OpenGlFragment();
+           // transaction.replace(R.id.map_recording_fragment_container, openGlFragment);
+           // transaction.addToBackStack("map_frag");
+           // transaction.commit();
 
             //OpenGlFragment openGlFragment = new OpenGlFragment();
             //FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
