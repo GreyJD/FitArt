@@ -50,6 +50,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -485,7 +486,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 }
 
 
-class PolyLineData implements Serializable{
+class PolyLineData implements Serializable {
 
     private double startlat;
     private double startlong;
