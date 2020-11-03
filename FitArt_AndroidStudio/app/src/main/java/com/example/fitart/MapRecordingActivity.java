@@ -7,9 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,17 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 
 import android.graphics.PorterDuff;
@@ -50,15 +38,8 @@ import java.util.ArrayList;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class MapRecordingActivity extends AppCompatActivity implements OnMapReadyCallback
+public class MapRecordingActivity extends AppCompatActivity
 {
-    private  ArrayList<PolyLineData> currentPolyList = new ArrayList<>() ;
-    private GoogleMap mMap;
-    private LatLng lastLocation = null;
-    private Marker lastLocationMarker = null;
-    private Button doneButton;
-    private Button playPauseButton;
-
     private boolean playPauseButtonClicked = false;
     private int mapArtButtonClicked = 0;
     BackgroundGPSReceiver backgroundGPSReceiver;
@@ -77,133 +58,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_recording);
 
-        //merged in start
-        setupMapIfNeeded();
-
-
-        //playPauseButton = findViewById(R.id.button_play_pause);
-        //playPauseButton.setOnClickListener(playPauseOnClickListener);
-
-        //doneButton = findViewById(R.id.button_done);
-        //doneButton.setOnClickListener(doneButtonOnClickListener);
-
-        final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        LocationManager locationManager;
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(this, "need to request premission", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        //check if the network provider is enabled
-        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 0, new LocationListener() {
-
-                @Override
-                public void onLocationChanged(Location location) {
-
-
-                    if (lastLocation == null) {
-                        lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 15));
-                        lastLocationMarker =  mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-                    } else if (playPauseButtonClicked) {
-
-                        long timeStamp = System.currentTimeMillis();
-
-                        kalmanFilter.Process(location.getLatitude(), location.getLongitude(), location.getAccuracy(), timeStamp);
-                        LatLng newLocation = new LatLng(kalmanFilter.get_lat(), kalmanFilter.get_lng());
-
-                        mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2));
-                        PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
-                        currentPolyList.add(lineData);
-
-                        lastLocation = newLocation;
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                        lastLocationMarker.remove();
-                        lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-
-                    }
-                    else
-                        ;
-
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-            });
-        }
-        else if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, new LocationListener() {
-
-                @Override
-                public void onLocationChanged(Location location) {
-
-
-                    if (lastLocation == null) {
-                        lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 15));
-                        lastLocationMarker =  mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-                    } else if (playPauseButtonClicked) {
-                        long timeStamp = System.currentTimeMillis();
-
-                        kalmanFilter.Process(location.getLatitude(), location.getLongitude(), location.getAccuracy(), timeStamp);
-                        LatLng newLocation = new LatLng(kalmanFilter.get_lat(), kalmanFilter.get_lng());
-
-                        mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2));
-                        PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
-                        currentPolyList.add(lineData);
-
-                        lastLocation = newLocation;
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                        lastLocationMarker.remove();
-                        lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-                    }
-                    else
-                        ;
-
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-            });
-        }
-        else
-            Toast.makeText(this, "no network or gps provider?", Toast.LENGTH_SHORT).show();
-        //merged in stop
 
         //sets up listener for broadcasts. moves gps data from service to activity
         backgroundGPSReceiver = new BackgroundGPSReceiver(dummy_list);//swap dummy_list with sam's list
@@ -222,41 +76,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         fragmentTransaction.commit();
 
 
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        mMap = googleMap;
-
-        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        CameraPosition position = mgr.getSavedCameraPosition();
-        if (position != null) {
-            CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
-            Toast.makeText(this, "entering Resume State", Toast.LENGTH_SHORT).show();
-            mMap.moveCamera(update);
-
-            mMap.setMapType(mgr.getSavedMapType());
-            PolyLineData newline;
-            LatLng startLatLng;
-            LatLng endLatLng;
-            for(int i = 0; i < currentPolyList.size(); i++){
-                newline =  currentPolyList.get(i);
-                startLatLng = newline.getStartlocation();
-                endLatLng = newline.getEndlocation();
-                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
-            }
-        }
-
-    }
-
-    private void setupMapIfNeeded() {
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        if (mMap == null) {
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-        }
     }
 
     @Override
