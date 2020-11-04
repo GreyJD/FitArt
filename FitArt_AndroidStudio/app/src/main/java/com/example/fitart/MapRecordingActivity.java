@@ -61,6 +61,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     private Marker lastLocationMarker = null;
     private Button doneButton;
     private Button playPauseButton;
+    final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
+
 
     private boolean playPauseButtonClicked = false;
     private int mapArtButtonClicked = 0;
@@ -90,7 +92,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         //doneButton = findViewById(R.id.button_done);
         //doneButton.setOnClickListener(doneButtonOnClickListener);
 
-        final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -209,9 +210,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         //merged in stop
 
         //sets up listener for broadcasts. moves gps data from service to activity
-        backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, currentPolyList,lastLocationMarker,lastLocation,kalmanFilter);//swap dummy_list with sam's list
-        IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
-        this.registerReceiver(backgroundGPSReceiver,intentFilter);
+
 
         //must add map fragment here (dynamic fragment allocation)
         //having the fragment declared in the .xml file is static fragment allocation
@@ -250,6 +249,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
             }
         }
+
+
 
     }
 
@@ -292,6 +293,11 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 //permission not granted
             } else {
                 playPauseButtonClicked = true;
+                if(backgroundGPSReceiver == null){
+                    backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, currentPolyList,lastLocationMarker,lastLocation,kalmanFilter);//swap dummy_list with sam's list
+                    IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
+                    this.registerReceiver(backgroundGPSReceiver,intentFilter);
+                }
                 //Intent service_intent = new Intent(this, GetLocationService.class); // old code - remove if/when irrelevant
                 //startService(service_intent);
             }
