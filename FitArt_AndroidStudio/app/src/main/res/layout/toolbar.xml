@@ -7,6 +7,6 @@
     android:background="@color/colorPrimaryDark"
     android:theme="@style/AppTheme"
     app:title="FitArt"
-    app:titleTextColor="@color/colorAccent">
+    app:titleTextColor="@color/colorAccentSecondary">
 
 </androidx.appcompat.widget.Toolbar>
