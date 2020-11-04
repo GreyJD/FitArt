@@ -263,14 +263,35 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
+
     @Override
-    public void onPause(){
-        super.onPause();
+    public void onDestroy(){
         if(playPauseButtonClicked){
             Intent service_intent = new Intent(this, GetLocationService.class);
             startService(service_intent);
 
         }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+    }
+
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
     }
 
     @Override
