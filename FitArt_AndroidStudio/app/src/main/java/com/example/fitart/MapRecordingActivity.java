@@ -2,8 +2,10 @@ package com.example.fitart;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -52,6 +54,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class MapRecordingActivity extends AppCompatActivity implements OnMapReadyCallback
 {
+    public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private  ArrayList<PolyLineData> currentPolyList = new ArrayList<>() ;
     private GoogleMap mMap;
     private LatLng lastLocation = null;
@@ -206,7 +209,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         //merged in stop
 
         //sets up listener for broadcasts. moves gps data from service to activity
-        backgroundGPSReceiver = new BackgroundGPSReceiver(dummy_list);//swap dummy_list with sam's list
+        backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, currentPolyList,lastLocationMarker,lastLocation,kalmanFilter);//swap dummy_list with sam's list
         IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
         this.registerReceiver(backgroundGPSReceiver,intentFilter);
 
@@ -358,6 +361,44 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
   */
     }
+
+
+    public void doneButtonClicked(View view){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapRecordingActivity.this);
+        builder.setMessage("Are you sure you're finished?").setTitle("test").setCancelable(false);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String usersName = "TestName";
+                MapStateManager currentState = new MapStateManager( MapRecordingActivity.this, usersName);
+                 /*
+                 PolyLineData temp = new PolyLineData( new LatLng(-35.016, 143.321), new LatLng(-34.747, 145.592));
+                 currentPolyList.add(temp);
+                 temp = new PolyLineData(new LatLng(-34.364, 147.891), new LatLng(-33.501, 150.217));
+                 currentPolyList.add(temp);
+                 temp = new PolyLineData(new LatLng(-32.306, 149.248), new LatLng(-32.491, 147.309));
+                 currentPolyList.add(temp);
+                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
+
+                  */
+                currentState.addToPolyLineList(currentPolyList);
+                currentState.saveMapState(mMap);
+              //  Intent intent = new Intent(MapRecordingActivity.this, EditActivity.class);
+               // intent.putExtra(EXTRA_MESSAGE, usersName);
+               // startActivity(intent);
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
         //Find Variables
       //  colorButton = findViewById(R.id.button_color);
       //  colorSwatchImage = findViewById(R.id.image_colorSwatch);

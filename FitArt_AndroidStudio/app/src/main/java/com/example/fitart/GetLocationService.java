@@ -30,6 +30,8 @@ public class GetLocationService extends Service {
     private static final String NOTIF_CHANNEL_ID = "GetLocationServiceChannel"; // add once channel is in place
 
     ArrayList<LatLng> locationList;
+    ArrayList<Long> timeStampArray;
+    ArrayList<Float> accuracyArray;
 
    // boolean isActivityRunning = true;
    // IsActivityOnReceiver isActivityOnReceiver;
@@ -46,6 +48,8 @@ public class GetLocationService extends Service {
         super.onCreate();
 
         locationList = new ArrayList<LatLng>();
+        timeStampArray = new ArrayList<Long>();
+        accuracyArray = new ArrayList<Float>();
 
         LocationManager locationManager;
         LocationListener locationListener;
@@ -57,6 +61,8 @@ public class GetLocationService extends Service {
                 //add each location to LocationList
                 LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
                 locationList.add(mostRecent);
+                timeStampArray.add(System.currentTimeMillis());
+                accuracyArray.add(location.getAccuracy());
               //  if(isActivityRunning){
               //      broadcastLocationList();
               //  }
@@ -135,6 +141,20 @@ public class GetLocationService extends Service {
         if(!locationList.isEmpty()) {
             Intent sendLocation = new Intent();
             sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
+
+            long[] outboundTimestamp = new long[timeStampArray.size()];
+            float[] outboundAccuracy = new float[accuracyArray.size()];
+            for(int i =0; i < timeStampArray.size(); i++){
+                outboundTimestamp[i] = timeStampArray.get(i);
+                outboundAccuracy[i] = accuracyArray.get(i);
+            }
+
+           // Object[] timestampObjects = timeStampArray.toArray();
+            sendLocation.putExtra("TIMESTAMP",outboundTimestamp);
+
+            //Object[] accuracyObjects = accuracyArray.toArray();
+            sendLocation.putExtra("ACCURACY",outboundAccuracy);
+
             sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
             sendBroadcast(sendLocation);
 
