@@ -18,7 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.example.fitart.KalmanLatLong;
 
 import java.util.ArrayList;
 
@@ -29,7 +33,8 @@ public class GetLocationService extends Service {
     private static final int NOTIF_ID = 1;
     private static final String NOTIF_CHANNEL_ID = "GetLocationServiceChannel"; // add once channel is in place
 
-    ArrayList<LatLng> locationList;
+    ArrayList<PolyLineData> locationList;
+    LatLng lastLocation = null;
 
    // boolean isActivityRunning = true;
    // IsActivityOnReceiver isActivityOnReceiver;
@@ -45,7 +50,8 @@ public class GetLocationService extends Service {
     public void onCreate(){
         super.onCreate();
 
-        locationList = new ArrayList<LatLng>();
+        locationList = new ArrayList<PolyLineData>();
+        final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
 
         LocationManager locationManager;
         LocationListener locationListener;
@@ -55,8 +61,24 @@ public class GetLocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 //add each location to LocationList
-                LatLng mostRecent = new LatLng(location.getLatitude(),location.getLongitude());
-                locationList.add(mostRecent);
+
+                if (lastLocation == null) {
+                    lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                } else {
+
+                    long timeStamp = System.currentTimeMillis();
+
+                    kalmanFilter.Process(location.getLatitude(), location.getLongitude(), location.getAccuracy(), timeStamp);
+                    LatLng newLocation = new LatLng(kalmanFilter.get_lat(), kalmanFilter.get_lng());
+
+                    PolyLineData mostRecent = new PolyLineData(lastLocation, newLocation);
+                    locationList.add(mostRecent);
+                    lastLocation = newLocation;
+
+                }
+
+
               //  if(isActivityRunning){
               //      broadcastLocationList();
               //  }
@@ -124,7 +146,7 @@ public class GetLocationService extends Service {
         //NotificationCompat is for old versions, maybe update to Notification.builder? needs research
         startForeground(NOTIF_ID, new NotificationCompat.Builder(this,NOTIF_CHANNEL_ID)
                 .setOngoing(true)
-                .setSmallIcon(R.drawable.pototype_small_icon) //this is found in res/drawable... there is no icon so it gives an error
+                //.setSmallIcon(R.drawable.pototype_small_icon) //this is found in res/drawable... there is no icon so it gives an error
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText("service running in background")
                 .setContentIntent(pendingIntent)
@@ -134,11 +156,13 @@ public class GetLocationService extends Service {
     private void broadcastLocationList(){
         if(!locationList.isEmpty()) {
             Intent sendLocation = new Intent();
-            sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
+            Bundle args = new Bundle();
+            args.putSerializable("LOCATION", locationList);
+            sendLocation.putExtra("BUNDLE",args);
             sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
             sendBroadcast(sendLocation);
 
-            locationList = new ArrayList<LatLng>();
+            locationList = new ArrayList<PolyLineData>();
             // I believe reference to the old arraylist is attached to the broadcasted intent so no memory is
             // leaked here, but I'm more of a cpp guy so this needs a closer look
         }
