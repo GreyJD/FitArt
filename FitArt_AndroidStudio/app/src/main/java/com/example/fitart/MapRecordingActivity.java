@@ -79,7 +79,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
 
         //sets up listener for broadcasts. moves gps data from service to activity
-        BackgroundGPSReceiver backgroundGPSReceiver = new BackgroundGPSReceiver(currentPolyList, mMap);//swap dummy_list with sam's list
+        BackgroundGPSReceiver backgroundGPSReceiver = new BackgroundGPSReceiver( mMap, currentPolyList,  lastLocationMarker, lastLocation, kalmanFilter);//swap dummy_list with sam's list
         IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
         this.registerReceiver(backgroundGPSReceiver, intentFilter);
 
@@ -197,6 +197,35 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
     }
 
+    @Override
+    public void onDestroy(){
+        if(playPauseButtonClicked){
+            Intent service_intent = new Intent(this, GetLocationService.class);
+            startService(service_intent);
+
+        }
+        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+        mgr.addToPolyLineList(currentPolyList);
+        mgr.saveMapState(mMap);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+        mgr.addToPolyLineList(currentPolyList);
+        mgr.saveMapState(mMap);
+
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+    }
+
 
     @Override
     public void onPause() {
@@ -204,11 +233,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
         mgr.addToPolyLineList(currentPolyList);
         mgr.saveMapState(mMap);
-        if (playPauseButtonClicked) {
-            Intent service_intent = new Intent(this, GetLocationService.class);
-            startService(service_intent);
 
-        }
     }
 
     @Override
@@ -235,11 +260,27 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
             CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
             Toast.makeText(this, "entering Resume State", Toast.LENGTH_SHORT).show();
             mMap.moveCamera(update);
+            PolyLineData newline;
+            LatLng startLatLng;
+            LatLng endLatLng;
+            for (int i = 0; i < currentPolyList.size(); i++) {
+                newline = currentPolyList.get(i);
+                startLatLng = newline.getStartlocation();
+                endLatLng = newline.getEndlocation();
+                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
+            }
+        }
+        else if ( lastLocationMarker != null)
+            {
+                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
+            }
 
             mMap.setMapType(mgr.getSavedMapType());
         }
 
-    }
+
+
+
 
 
     private View.OnClickListener playPauseOnClickListener = new View.OnClickListener() {
@@ -320,8 +361,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                   */
                 currentState.addToPolyLineList(currentPolyList);
                 currentState.saveMapState(mMap);
+                currentPolyList = new ArrayList<>();
+                lastLocation = null;
+                mMap.clear();
                 Intent intent = new Intent(MapRecordingActivity.this, EditActivity.class);
                 intent.putExtra(EXTRA_MESSAGE, usersName);
+
                 startActivity(intent);
             }
         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
