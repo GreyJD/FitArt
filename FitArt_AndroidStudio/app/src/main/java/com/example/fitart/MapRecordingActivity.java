@@ -67,8 +67,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     private boolean playPauseButtonClicked = false;
     private int mapArtButtonClicked = 0;
     BackgroundGPSReceiver backgroundGPSReceiver;
-    ArrayList<LatLng> dummy_list = new ArrayList<LatLng>(); // sam's branch should use something like this
-    // remove dummy_list variable after merge
 
     private static SeekBar seek_bar;
     ImageButton colorButton;
