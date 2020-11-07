@@ -117,7 +117,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 @Override
                 public void onLocationChanged(Location location) {
 
-
                     if (lastLocation == null) {
                         lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 15));
@@ -137,7 +136,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
                         lastLocationMarker.remove();
                         lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-
                     }
                     else
                         ;
@@ -165,7 +163,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 @Override
                 public void onLocationChanged(Location location) {
 
-
                     if (lastLocation == null) {
                         lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 15));
@@ -187,7 +184,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                     }
                     else
                         ;
-
                 }
 
                 @Override
@@ -211,7 +207,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
         //sets up listener for broadcasts. moves gps data from service to activity
 
-
         //must add map fragment here (dynamic fragment allocation)
         //having the fragment declared in the .xml file is static fragment allocation
 
@@ -222,8 +217,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         //MapsFragment mapsFragment = new MapsFragment();
         //fragmentTransaction.add(R.id.map_recording_fragment_container, mapsFragment);
         //fragmentTransaction.commit();
-
-
     }
 
     @Override
@@ -249,9 +242,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
             }
         }
-
-
-
     }
 
     private void setupMapIfNeeded() {
@@ -360,20 +350,15 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
         } else if (mapArtButtonClicked == 1) {
             // 2 - openGL running with map fragment on backstack
-            //
-
-
             mapArtButtonClicked++;
 
         } else if (mapArtButtonClicked == 2) {
             // 3 - map running with openGL on backstack
-
             mapArtButtonClicked--;
 
         } else {
             //error state reached
         }
-
 
 
 /* starter xml code for opengl fragment (causes crashing if inserted)
@@ -388,7 +373,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
   */
     }
-
 
     public void doneButtonClicked(View view){
 

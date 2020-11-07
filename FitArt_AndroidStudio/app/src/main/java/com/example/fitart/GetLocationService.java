@@ -22,6 +22,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
+
+// When this service is created it will set  set up a location listener and begin adding location data
+// to a list. Once onStart fires it will be set to the Foreground
+
 public class GetLocationService extends Service {
 
     // service code used from
@@ -95,12 +99,10 @@ public class GetLocationService extends Service {
         locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
 
         // registers a broadcast receiver to determine if the activity we broadcast location pings
-        // to is
+        // to is active
         //isActivityOnReceiver = new IsActivityOnReceiver();
         //IntentFilter intentFilter = new IntentFilter("MAP_REC_ACT_STATE");
         //this.registerReceiver(isActivityOnReceiver,intentFilter);
-
-
 
     }
 
@@ -110,15 +112,13 @@ public class GetLocationService extends Service {
         broadcastLocationList();
         super.onDestroy();
         // !! location manager/listener needs to be deallocated here to avoid mem leak !!
-
     }
 
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        // This function should be used to return location data.
+        // This function is unused.
         startForeground(); // this could be moved to onCreate for optimization
-
        // broadcastLocationList();
 
         return START_NOT_STICKY;
@@ -159,10 +159,9 @@ public class GetLocationService extends Service {
             sendBroadcast(sendLocation);
 
             locationList = new ArrayList<LatLng>();
-            // I believe reference to the old arraylist is attached to the broadcasted intent so no memory is
-            // leaked here, but I'm more of a cpp guy so this needs a closer look
         }
     }
+
 
   /*  private class IsActivityOnReceiver extends BroadcastReceiver {
 
