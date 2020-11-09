@@ -31,20 +31,31 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private String usersFileName;
-
+    private Button saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.edit_route);
+
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
+        saveButton = findViewById(R.id.button_save);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        saveButton.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(EditActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 

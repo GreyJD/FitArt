@@ -28,7 +28,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".EditActivity"
+            android:parentActivityName=".MapRecordingActivity">
+        </activity>
 
+        <activity android:name=".MapRecordingActivity">
+        </activity>
+
+        <activity android:name=".GalleryActivity">
+        </activity>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -42,25 +51,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".EditActivity"
-            android:label="@string/title_activity_maps"
-            android:parentActivityName=".MapRecordingActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MapRecordingActivity" />
 
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MapRecordingActivity" />
-
-        </activity>
-
-
-        <activity android:name=".MapRecordingActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <service android:name="com.example.fitart.GetLocationService"/>
 
     </application>
