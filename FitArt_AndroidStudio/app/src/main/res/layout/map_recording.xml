@@ -38,7 +38,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="50dp"
         android:layout_marginBottom="30dp"
-        android:background="@drawable/button_background01"
+        android:background="@drawable/button_background02"
         android:text="Play/Pause"
         android:textColor="@color/colorWhite" />
 
@@ -50,7 +50,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="30dp"
-        android:background="@drawable/button_background01"
+        android:background="@drawable/button_background02"
         android:text="Done"
         android:textColor="@color/colorWhite" />
 

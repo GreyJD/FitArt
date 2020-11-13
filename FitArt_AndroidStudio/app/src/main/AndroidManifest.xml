@@ -33,10 +33,15 @@
             android:parentActivityName=".MapRecordingActivity">
         </activity>
 
+
         <activity android:name=".MapRecordingActivity">
         </activity>
 
         <activity android:name=".GalleryActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
         </activity>
 
         <!--

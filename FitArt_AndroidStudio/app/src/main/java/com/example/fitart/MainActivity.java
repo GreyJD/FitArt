@@ -5,7 +5,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,14 +16,19 @@ import android.view.View;
 import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     //next page
     private Button press_to_start;
+    private Button gallery_button;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    public final String savedMapsfile = "SAVED_ART";
+
 
 
     @Override
@@ -29,11 +36,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Create a shared preference file to store saved runs
+       // Set<String> testSet = new HashSet<String>();
+      //  testSet.add("test1");
+      //  testSet.add("test2");
+
+        SharedPreferences pref = getSharedPreferences(savedMapsfile, Context.MODE_PRIVATE);
+        //SharedPreferences.Editor editor = pref.edit();
+        //editor.putStringSet("FILE_NAMES", testSet);
+       // editor.commit();
         //Connect variables to layout
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         press_to_start = findViewById(R.id.button_start);
-
+        gallery_button = findViewById(R.id.button_archive);
 
         ///Populate Recycler View///
         ArrayList<RVCard> statsList = new ArrayList<>();
@@ -54,6 +70,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view)
             {
                 Intent intent = new Intent(MainActivity.this, MapRecordingActivity.class);
+                startActivity(intent);
+            }
+        });
+        gallery_button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
                 startActivity(intent);
             }
         });
