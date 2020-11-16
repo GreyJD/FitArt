@@ -47,6 +47,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private GoogleMap mMap;
     private boolean playPauseButtonClicked = false;
+    private boolean isPaused;
 
     private ArrayList<PolyLineData> currentPolyList = new ArrayList<>();
     private Button playPauseButton;
@@ -72,6 +73,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
+        isPaused = false;
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
@@ -234,6 +236,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         mgr.addToPolyLineList(currentPolyList);
         mgr.saveMapState(mMap);
 
+        //FIX: Attempting to change play_pause button text
+        playPauseButton.setText("Play");
     }
 
     @Override
@@ -246,6 +250,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         Intent service_intent = new Intent(this, GetLocationService.class);
         stopService(service_intent);
 
+        //FIX: Attempting to change play pause button text
+        playPauseButton.setText("Pause");
 
     }
 
@@ -288,6 +294,11 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         public void onClick(View v) {
 
             playPauseButtonClicked(v);
+            isPaused = !isPaused;
+            if (isPaused)
+                playPauseButton.setText("Play");
+            else
+                playPauseButton.setText("Pause");
         }
     };
 
