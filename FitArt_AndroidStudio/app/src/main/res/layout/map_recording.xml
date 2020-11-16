@@ -4,8 +4,8 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
-
+    android:layout_width="match_parent"
+    android:background="@color/colorPrimary">
 
     <fragment
         android:id="@+id/map"
@@ -13,7 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:layout_marginTop="-56dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="100dp"
         tools:context=".MapsActivity" />
 
     <include
@@ -21,83 +24,46 @@
         layout="@layout/toolbar"
         map:titleTextColor="@color/colorWhite" />
 
-    <ImageView
-        android:id="@+id/action_bar_background"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="-1dp"
-        android:contentDescription="Background_PrimaryDark"
-        map:srcCompat="@color/colorPrimaryDark" />
-
     <Button
         android:id="@+id/button_play_pause"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
+        android:layout_width="120dp"
+        android:layout_height="58dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/button_background01"
+        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toStartOf="@+id/button_done"
+        android:layout_toEndOf="@+id/button_draw"
+        android:background="@drawable/button_background02"
         android:text="Play"
         android:textColor="@color/colorWhite" />
 
     <Button
         android:id="@+id/button_done"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
+        android:layout_width="118dp"
+        android:layout_height="39dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="50dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="19dp"
+        android:layout_marginBottom="28dp"
         android:background="@drawable/button_background01"
         android:text="Done"
         android:textColor="@color/colorWhite" />
 
-    <SeekBar
-        android:id="@+id/seekBar_BrushSize"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/image_paintBrush"
-        android:layout_alignBottom="@+id/image_paintBrush"
-        android:layout_marginStart="10dp"
-        android:layout_toEndOf="@+id/image_paintBrush"
-        android:padding="10dp"
-        android:progressDrawable="@drawable/seekbar_style"
-        android:splitTrack="false"
-        android:thumb="@drawable/custom_thumb" />
-
     <ImageButton
         android:id="@+id/button_color"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:padding="10dp"
-        android:layout_alignTop="@+id/image_paintBrush"
-        android:layout_alignBottom="@+id/image_paintBrush"
-        android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_color_wheel" />
-
-    <ImageView
-        android:id="@+id/image_paintBrush"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignTop="@+id/action_bar_background"
+        android:layout_width="118dp"
+        android:layout_height="39dp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/paint_brush" />
-
-
-    <ImageView
-        android:id="@+id/image_colorSwatch"
-        android:layout_width="45dp"
-        android:layout_height="5dp"
-        android:layout_alignStart="@+id/button_color"
-        android:layout_alignBottom="@+id/button_color"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="-1dp"
-        android:background="@color/colorPrimary"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="22dp"
+        android:layout_marginStart="19dp"
+        android:layout_marginBottom="28dp"
+        android:layout_toStartOf="@+id/button_play_pause"
+        android:src="@drawable/ic_color_wheel"
+        android:background="@drawable/button_background01" />
 
 </RelativeLayout>
