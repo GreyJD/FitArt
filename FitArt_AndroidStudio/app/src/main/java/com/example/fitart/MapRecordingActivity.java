@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -354,22 +355,15 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public void doneButtonClicked(View view) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MapRecordingActivity.this);
-        builder.setMessage("Are you sure you're finished?").setTitle("test").setCancelable(false);
+        builder.setMessage("Give it a name!").setTitle("Are you finished?").setCancelable(false);
+        final EditText userInput = new EditText(MapRecordingActivity.this);
+        builder.setView(userInput);
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String usersName = "TestName";
+                String usersName = userInput.getText().toString();
                 MapStateManager currentState = new MapStateManager(MapRecordingActivity.this, usersName);
-                 /*
-                 PolyLineData temp = new PolyLineData( new LatLng(-35.016, 143.321), new LatLng(-34.747, 145.592));
-                 currentPolyList.add(temp);
-                 temp = new PolyLineData(new LatLng(-34.364, 147.891), new LatLng(-33.501, 150.217));
-                 currentPolyList.add(temp);
-                 temp = new PolyLineData(new LatLng(-32.306, 149.248), new LatLng(-32.491, 147.309));
-                 currentPolyList.add(temp);
-                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
 
-                  */
                 currentState.addToPolyLineList(currentPolyList);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
