@@ -73,7 +73,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
-        isPaused = false;
+        isPaused = true;
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
