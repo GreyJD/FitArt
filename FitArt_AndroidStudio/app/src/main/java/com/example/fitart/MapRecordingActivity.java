@@ -236,9 +236,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
         mgr.addToPolyLineList(currentPolyList);
         mgr.saveMapState(mMap);
-
-        //FIX: Attempting to change play_pause button text
-        playPauseButton.setText("Play");
     }
 
     @Override
@@ -250,9 +247,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         currentPolyList = mgr.getPolyLineList();
         Intent service_intent = new Intent(this, GetLocationService.class);
         stopService(service_intent);
-
-        //FIX: Attempting to change play pause button text
-        playPauseButton.setText("Pause");
 
     }
 
@@ -295,6 +289,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         public void onClick(View v) {
 
             playPauseButtonClicked(v);
+
+            //Change play pause button text
             isPaused = !isPaused;
             if (isPaused)
                 playPauseButton.setText("Play");
