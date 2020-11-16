@@ -64,6 +64,11 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 Set<String> set = pref.getStringSet("FILE_NAMES", null);
                 if(set == null)
                    set = new HashSet<String>();
+                else if(set.contains(usersFileName)){
+                    Intent intent = new Intent(EditActivity.this, GalleryActivity.class);
+                    startActivity(intent);
+                }
+
                 set.add(usersFileName);
 
                 userFileSet.addAll(set);
