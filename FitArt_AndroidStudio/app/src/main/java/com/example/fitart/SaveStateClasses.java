@@ -60,9 +60,15 @@ class MapStateManager {
     private static final String TILT = "tilt";
     private static final String MAPTYPE = "MAPTYPE";
     private static final String POLYLINES = "polylines";
+    private static final String DISTANCE = "distance";
+    private static final String TIME = "time";
 
 
     private ArrayList<PolyLineData> polyLineList;
+
+    public double milesTravled;
+
+    public long timeTravled;
 
     private SharedPreferences mapStatePrefs;
 
@@ -73,6 +79,10 @@ class MapStateManager {
     public void addToPolyLineList(ArrayList<PolyLineData> value) {
         polyLineList = value;
     }
+
+    public void addMilesToSaveState(double miles){ milesTravled = miles;}
+
+    public void addTimeToSaveState(long time){ timeTravled = time;}
 
     public void loadPolyListFromState() {
         Gson gson = new Gson();
@@ -105,6 +115,8 @@ class MapStateManager {
         editor.putFloat(TILT, position.tilt);
         editor.putFloat(BEARING, position.bearing);
         editor.putInt(MAPTYPE, mapMie.getMapType());
+        editor.putFloat(DISTANCE, (float) milesTravled);
+        editor.putLong(TIME, timeTravled);
         editor.commit();
     }
 

@@ -37,6 +37,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private String usersFileName;
     private Button saveButton;
+    private Button deleteButton;
     private Set<String> userFileSet = new HashSet<String>();
 
     @Override
@@ -48,6 +49,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
         saveButton = findViewById(R.id.button_save);
+        deleteButton = findViewById(R.id.button_delete);
 
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -61,6 +63,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
                 SharedPreferences pref = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
+                editor.clear();
                 Set<String> set = pref.getStringSet("FILE_NAMES", null);
                 if(set == null)
                    set = new HashSet<String>();
@@ -79,6 +82,44 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Context context = view.getContext();
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Are you sure you want to delete this art?").setCancelable(false);
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SharedPreferences prefs = getSharedPreferences(usersFileName, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.clear();
+                        editor.commit();
+                        prefs = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
+                        editor = prefs.edit();
+                        Set<String> set = prefs.getStringSet("FILE_NAMES", null);
+                        set.remove(usersFileName);
+                        userFileSet.addAll(set);
+                        editor.putStringSet("FILE_NAMES", userFileSet);
+                        editor.commit();
+
+                        Intent intent = new Intent(EditActivity.this, GalleryActivity.class);
+                        startActivity(intent);
+
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
+
     }
 
 
@@ -87,7 +128,6 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
 
-        SharedPreferences savedState = PreferenceManager.getDefaultSharedPreferences(this);
         MapStateManager mgr = new MapStateManager(this, usersFileName);
         CameraPosition position = mgr.getSavedCameraPosition();
         if (position != null) {

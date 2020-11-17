@@ -36,11 +36,23 @@
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="157dp"
-        android:layout_marginBottom="44dp"
+        android:layout_marginEnd="248dp"
+        android:layout_marginBottom="42dp"
         android:background="@drawable/button_background02"
         android:text="Save"
-        android:textColor="@color/colorWhite"/>
+        android:textColor="@color/colorWhite" />
+
+    <Button
+        android:id="@+id/button_delete"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="43dp"
+        android:background="@drawable/button_background02"
+        android:text="Delete"
+        android:textColor="@color/colorWhite" />
 
     <SeekBar
         android:id="@+id/seekBar_BrushSize"

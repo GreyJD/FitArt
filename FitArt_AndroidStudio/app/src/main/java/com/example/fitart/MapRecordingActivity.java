@@ -50,10 +50,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     private boolean playPauseButtonClicked = false;
 
     private ArrayList<PolyLineData> currentPolyList = new ArrayList<>();
+    private double currentMilesTravled = 0.0;
     private Button playPauseButton;
     private Button doneButton;
     private LatLng lastLocation = null;
     private Marker lastLocationMarker = null;
+    private long start;
 
     private static SeekBar seek_bar;
     ImageButton colorButton;
@@ -63,7 +65,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        start = System.nanoTime();
 
         super.onCreate(savedInstanceState);
 
@@ -80,7 +82,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
 
         //sets up listener for broadcasts. moves gps data from service to activity
-        BackgroundGPSReceiver backgroundGPSReceiver = new BackgroundGPSReceiver( mMap, currentPolyList,  lastLocationMarker, lastLocation, kalmanFilter);//swap dummy_list with sam's list
+        BackgroundGPSReceiver backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, currentPolyList, lastLocationMarker, lastLocation, kalmanFilter);//swap dummy_list with sam's list
         IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
         this.registerReceiver(backgroundGPSReceiver, intentFilter);
 
@@ -123,7 +125,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                         mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2));
                         PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
                         currentPolyList.add(lineData);
-
+                        double temp = CalculateDistance(lastLocation.latitude, newLocation.latitude, lastLocation.longitude, newLocation.longitude);
+                        currentMilesTravled += temp;
 
                         lastLocation = newLocation;
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
@@ -199,8 +202,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     }
 
     @Override
-    public void onDestroy(){
-        if(playPauseButtonClicked){
+    public void onDestroy() {
+        if (playPauseButtonClicked) {
             Intent service_intent = new Intent(this, GetLocationService.class);
             startService(service_intent);
 
@@ -212,7 +215,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
         mgr.addToPolyLineList(currentPolyList);
@@ -222,7 +225,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
 
     }
@@ -270,18 +273,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 endLatLng = newline.getEndlocation();
                 mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
             }
-        }
-        else if ( lastLocationMarker != null)
-            {
-                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-            }
-
-            mMap.setMapType(mgr.getSavedMapType());
+        } else if (lastLocationMarker != null) {
+            lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
         }
 
-
-
-
+        mMap.setMapType(mgr.getSavedMapType());
+    }
 
 
     private View.OnClickListener playPauseOnClickListener = new View.OnClickListener() {
@@ -310,7 +307,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         }
 
     }
-
 
 
     public void playPauseButtonClicked(View view) {
@@ -353,7 +349,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 String usersName = userInput.getText().toString();
                 MapStateManager currentState = new MapStateManager(MapRecordingActivity.this, usersName);
 
+                long finish = System.nanoTime();
+                long timeElapsed = finish - start;
+
+                currentState.addTimeToSaveState(timeElapsed);
                 currentState.addToPolyLineList(currentPolyList);
+                currentState.addMilesToSaveState(currentMilesTravled);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
                 lastLocation = null;
@@ -398,7 +399,16 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         ambilWarnaDialog.show();
 
     }
-}
 
+
+    public double CalculateDistance(double lat1, double lat2, double long1, double long2) {
+        double theta = long1 - long2;
+        double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
+        dist = Math.acos(dist);
+        dist = Math.toDegrees(dist);
+        dist = dist * 60 * 1.1515;
+        return dist;
+    }
+}
 
 
