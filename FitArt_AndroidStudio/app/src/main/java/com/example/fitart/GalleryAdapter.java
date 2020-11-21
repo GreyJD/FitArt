@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -55,7 +57,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyMapVie
     @Override
     public void onBindViewHolder(@NonNull MyMapViewHolder holder, final int position) {
         holder.mView.setLongClickable(true);
-        String doubleString = Double.toString(distanceList[position]);
+        DecimalFormat df = new DecimalFormat("#.###");
+        String doubleString = df.format(distanceList[position]);
+
         holder.distanceNumView.setText(doubleString);
         holder.prefName.setText(prefList[position]);
         holder.mView.setOnClickListener(new View.OnClickListener() {

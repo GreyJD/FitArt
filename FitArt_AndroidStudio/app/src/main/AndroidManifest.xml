@@ -35,6 +35,7 @@
 
 
         <activity android:name=".MapRecordingActivity">
+            android:configChanges="orientation|keyboardHidden|screenSize"
         </activity>
 
         <activity android:name=".GalleryActivity">
@@ -61,6 +62,12 @@
             android:value=".MapRecordingActivity" />
 
         <service android:name="com.example.fitart.GetLocationService"/>
+
+        <service
+            android:name="mad.location.manager.lib.Services.KalmanLocationService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false" />
 
     </application>
 

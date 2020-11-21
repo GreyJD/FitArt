@@ -3,6 +3,7 @@ package com.example.fitart;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -12,25 +13,27 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import mad.location.manager.lib.Loggers.GeohashRTFilter;
 
 public class BackgroundGPSReceiver extends BroadcastReceiver{
 
     private GoogleMap mMap;
     ArrayList<PolyLineData> currentPolyList;
     Marker lastLocationMarker;
-    //ArrayList<Long> timestampArray;
-    //ArrayList<Float> accuracyArray;
     long[] timeStampObjects;
     float[] accurracyObjects;
     KalmanLatLong kalmanFilter;
     //accepts gps data from background service
-
     private LatLng lastLocation = null;
-
-
-
     ArrayList<LatLng> receivedList;
-    //ArrayList<LatLng> activityList;
+
+    //Testing
+    private GeohashRTFilter m_geoHashRTFilter;
+    private List<Location> m_lstGpsCoordinates = new ArrayList<>();
+    private List<Location> m_lstKalmanFilteredCoordinates = new ArrayList<>();
+    //Testing
 
 
 
@@ -38,12 +41,14 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
                                  ArrayList<PolyLineData> MapRecordingActivityCurrentPolyList,
                                  Marker MapRecordingActivityLastLocationMarker,
                                  LatLng MapRecordingActivityLastLocation,
-                                 KalmanLatLong MapRecordingActivityKalmanFilter){
+                                 KalmanLatLong MapRecordingActivityKalmanFilter,
+                                 GeohashRTFilter geoHashRTFilter){
         mMap = MapRecordingActivitymMap;
         this.currentPolyList = MapRecordingActivityCurrentPolyList;
         lastLocationMarker = MapRecordingActivityLastLocationMarker;
         lastLocation = MapRecordingActivityLastLocation;
         kalmanFilter = MapRecordingActivityKalmanFilter;
+        m_geoHashRTFilter = geoHashRTFilter;
     }
 
 

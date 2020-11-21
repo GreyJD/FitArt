@@ -44,7 +44,7 @@ public class GalleryActivity extends AppCompatActivity {
 
         for(int i = 0; i < savedFileNames.length; i++ ) {
             MapStateManager state = new MapStateManager(this, savedFileNames[i]);
-            distanceArray[i] = state.milesTravled;
+            distanceArray[i] = state.getMilesTravled();
         }
 
         mRecyclerView =  findViewById(R.id.recycler_view);

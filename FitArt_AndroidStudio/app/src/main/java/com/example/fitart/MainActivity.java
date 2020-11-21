@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i < savedFileNames.length; i++ ) {
             MapStateManager state = new MapStateManager(this, savedFileNames[i]);
-            totalDist += state.milesTravled;
-            totalTime += state.timeTravled;
+            totalDist += state.getMilesTravled();
+            totalTime += state.getTimeTravled();
         }
-        String stringDist = Double.toString(totalDist);
+        DecimalFormat df = new DecimalFormat("#.###");
+        String stringDist = df.format(totalDist);
         long totalSeconds = totalTime/1000000000;
         long seconds = totalSeconds % 60;
         long hours = totalSeconds / 60;

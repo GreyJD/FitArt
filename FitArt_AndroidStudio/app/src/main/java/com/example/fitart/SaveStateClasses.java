@@ -135,6 +135,14 @@ class MapStateManager {
         CameraPosition position = new CameraPosition(target, zoom, tilt, bearing);
         return position;
     }
+    public double getMilesTravled(){
+        double miles = mapStatePrefs.getFloat(DISTANCE, 0);
+        return miles;
+    }
+    public long getTimeTravled(){
+        long time = mapStatePrefs.getLong(TIME, 0);
+        return time;
+    }
 
     public int getSavedMapType() {
         return mapStatePrefs.getInt(MAPTYPE, GoogleMap.MAP_TYPE_NORMAL);

@@ -20,12 +20,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.example.fitart.GetLocationService;
 import com.example.fitart.MapStateManager;
+import com.google.android.gms.maps.model.RoundCap;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +56,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        mapFragment.setRetainInstance(true);
         mapFragment.getMapAsync(this);
 
         saveButton.setOnClickListener( new View.OnClickListener()
@@ -141,11 +145,12 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
             PolyLineData newline;
             LatLng startLatLng;
             LatLng endLatLng;
+            Cap roundCap = new RoundCap();
             for(int i = 0; i < newLines.size(); i++){
                 newline =  newLines.get(i);
                 startLatLng = newline.getStartlocation();
                 endLatLng = newline.getEndlocation();
-                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
+                mMap.addPolyline(new PolylineOptions().clickable(false).add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap));
             }
         }
 
