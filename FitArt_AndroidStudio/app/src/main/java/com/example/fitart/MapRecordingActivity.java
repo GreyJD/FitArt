@@ -1,8 +1,11 @@
 package com.example.fitart;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
@@ -33,6 +37,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
@@ -44,25 +50,23 @@ import com.google.android.gms.maps.model.RoundCap;
 
 import java.util.ArrayList;
 
-import mad.location.manager.lib.Commons.Utils;
+
 import mad.location.manager.lib.Interfaces.ILogger;
 import mad.location.manager.lib.Interfaces.SimpleTempCallback;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import mad.location.manager.lib.Interfaces.LocationServiceInterface;
-import mad.location.manager.lib.Loggers.GeohashRTFilter;
-import mad.location.manager.lib.SensorAux.SensorCalibrator;
 import mad.location.manager.lib.Services.KalmanLocationService;
 import mad.location.manager.lib.Services.ServicesHelper;
-import mad.location.manager.lib.Interfaces.ILogger;
 
 
-public class MapRecordingActivity extends AppCompatActivity implements LocationServiceInterface, OnMapReadyCallback, ILogger  {
+
+public class MapRecordingActivity extends AppCompatActivity implements  OnMapReadyCallback {
 
     public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private GoogleMap mMap;
     private boolean playPauseButtonClicked = false;
-
+    private boolean first = true;
     private ArrayList<PolyLineData> currentPolyList = new ArrayList<>();
     private double currentMilesTravled = 0;
     private Button playPauseButton;
@@ -70,6 +74,7 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
     private LatLng lastLocation = null;
     private Marker lastLocationMarker = null;
     private long start;
+    private BackgroundGPSReceiver backgroundGPSReceiver;
 
 
     @Override
@@ -80,8 +85,6 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
 
         setContentView(R.layout.map_recording);
         setupMapIfNeeded();
-
-
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
 
@@ -89,10 +92,8 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
         doneButton.setOnClickListener(doneButtonOnClickListener);
 
 
-        //sets up listener for broadcasts. moves gps data from service to activity
-        ////BackgroundGPSReceiver backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, currentPolyList, lastLocationMarker, lastLocation, kalmanFilter);//swap dummy_list with sam's list
-        //IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
-        //this.registerReceiver(backgroundGPSReceiver, intentFilter);
+
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -100,47 +101,42 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
         mapFragment.getMapAsync(this);
 
 
-        ServicesHelper.addLocationServiceInterface(this);
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            Toast.makeText(this, "need to request premission", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
 
     }
+
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        setContentView(R.layout.map_recording);
-    }
-        @Override
          public void onDestroy() {
+            super.onDestroy();
 
-        ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
-                @Override
-                public void onCall(KalmanLocationService value) {
-                    if (value.IsRunning()) {
-                        value.stop();
-                        return;
-                    }
-                }
-        });
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.addToPolyLineList(currentPolyList);
+        mgr.setPlaybutton(playPauseButtonClicked);
         mgr.saveMapState(mMap);
-        super.onDestroy();
+
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.addToPolyLineList(currentPolyList);
+        mgr.setPlaybutton(playPauseButtonClicked);
         mgr.saveMapState(mMap);
-
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
     }
 
@@ -149,21 +145,35 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
     public void onPause() {
         super.onPause();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.addToPolyLineList(currentPolyList);
+        mgr.setPlaybutton(playPauseButtonClicked);
+        Toast.makeText(this, "on pause", Toast.LENGTH_SHORT).show();
         mgr.saveMapState(mMap);
+
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+        currentPolyList = mgr.getPolyLineList();
+        playPauseButtonClicked = mgr.getPlaybutton();
+
+        setupMapIfNeeded();
+
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        setupMapIfNeeded();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.loadPolyListFromState();
         currentPolyList = mgr.getPolyLineList();
-        Intent service_intent = new Intent(this, GetLocationService.class);
-        stopService(service_intent);
-
+        playPauseButtonClicked = mgr.getPlaybutton();
+        if(playPauseButtonClicked == true){
+            Intent service_intent = new Intent(this, GetLocationService.class);
+            startService(service_intent);
+        }
+        Toast.makeText(this, "on resume", Toast.LENGTH_SHORT).show();
+        setupMapIfNeeded();
 
     }
 
@@ -174,8 +184,11 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
 
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
         CameraPosition position = mgr.getSavedCameraPosition();
+        currentPolyList = mgr.getPolyLineList();
+        mMap.clear();
         if (position != null) {
             CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+            Toast.makeText(this, "on map ready", Toast.LENGTH_SHORT).show();
             mMap.moveCamera(update);
             PolyLineData newline;
             LatLng startLatLng;
@@ -190,8 +203,8 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
         } else if (lastLocationMarker != null) {
             lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
         }
-
         mMap.setMapType(mgr.getSavedMapType());
+
     }
 
 
@@ -236,36 +249,29 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
                     ActivityCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //permission not granted
-            } else {
+            }
+            else {
                 playPauseButtonClicked = true;
+                if(backgroundGPSReceiver == null){
+                    backgroundGPSReceiver = new BackgroundGPSReceiver(mMap, lastLocationMarker);//swap dummy_list with sam's list
+                    IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
+                    this.registerReceiver(backgroundGPSReceiver,intentFilter);
+                }
+                MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+                mgr.setPlaybutton(playPauseButtonClicked);
+                mgr.saveMapState(mMap);
+                //sets up listener for broadcasts. moves gps data from service to activity
                 Toast.makeText(this, "play button clicked", Toast.LENGTH_SHORT).show();
-
-                ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
-                    @Override
-                    public void onCall(KalmanLocationService value) {
-                        if (value.IsRunning()) {
-                            return;
-                        }
-                        value.stop();
-                        KalmanLocationService.Settings settings = KalmanLocationService.defaultSettings;
-                        value.reset(settings);
-                        value.start();
-                    }
-                });
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                startService(service_intent);
             }
         } else {
             playPauseButtonClicked = false;
             // Intent service_intent = new Intent(this, GetLocationService.class); //old code - remove if/when irrelevant
             Toast.makeText(this, "pause button clicked?", Toast.LENGTH_SHORT).show();
-            ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
-                @Override
-                public void onCall(KalmanLocationService value) {
-                    if (value.IsRunning()) {
-                        value.stop();
-                        return;
-                    }
-                }
-            });
+            //Intent service_intent = new Intent(this, GetLocationService.class);
+            //stopService(service_intent);
+
             // stopService(service_intent); // !! important: have ondestroy broadcast any leftover data when service is stopped
         }
     }
@@ -280,18 +286,28 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
+                ServicesHelper.getLocationService(MapRecordingActivity.this, new SimpleTempCallback<KalmanLocationService>() {
+                    @Override
+                    public void onCall(KalmanLocationService value) {
+                        value.stop();
+                    }
+                });
                 String usersName = userInput.getText().toString();
                 MapStateManager currentState = new MapStateManager(MapRecordingActivity.this, usersName);
-
+                Intent service_intent = new Intent(MapRecordingActivity.this, GetLocationService.class);
+                stopService(service_intent);
                 long finish = System.nanoTime();
                 long timeElapsed = finish - start;
-
                 currentState.addTimeToSaveState(timeElapsed);
-                currentState.addToPolyLineList(currentPolyList);
+                currentState.setPolylinesList(currentPolyList);
                 currentState.addMilesToSaveState(currentMilesTravled);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
                 lastLocation = null;
+                playPauseButtonClicked = false;
+                MapStateManager mgr = new MapStateManager(MapRecordingActivity.this, "CurrentSession");
+                mgr.deletePolylineData();
                 mMap.clear();
                 Intent intent = new Intent(MapRecordingActivity.this, EditActivity.class);
                 intent.putExtra(EXTRA_MESSAGE, usersName);
@@ -310,48 +326,6 @@ public class MapRecordingActivity extends AppCompatActivity implements LocationS
     }
 
 
-    public double CalculateDistance(double lat1, double lat2, double long1, double long2) {
-        double theta = long1 - long2;
-        double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
-        dist = Math.acos(dist);
-        dist = Math.toDegrees(dist);
-        dist = dist * 60 * 1.1515;
-        return dist;
-    }
-
-    @Override
-    public void locationChanged(Location location) {
-        if (lastLocation == null && mMap != null) {
-            lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 16));
-            lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-        } else if (playPauseButtonClicked) {
-
-
-
-            LatLng newLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            double temp = CalculateDistance(lastLocation.latitude, newLocation.latitude, lastLocation.longitude, newLocation.longitude);
-            if(temp > 0.000947) {
-                currentMilesTravled += temp;
-
-                Cap roundCap = new RoundCap();
-                mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2).startCap(roundCap).endCap(roundCap));
-                PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
-                currentPolyList.add(lineData);
-                lastLocation = newLocation;
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                lastLocationMarker.remove();
-                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-            }
-        } else
-            ;
-
-    }
-
-    @Override
-    public void log2file(String s, Object... objects) {
-
-    }
 }
 
 

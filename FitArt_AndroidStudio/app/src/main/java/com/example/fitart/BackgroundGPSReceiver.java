@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,81 +22,52 @@ import mad.location.manager.lib.Loggers.GeohashRTFilter;
 public class BackgroundGPSReceiver extends BroadcastReceiver{
 
     private GoogleMap mMap;
-    ArrayList<PolyLineData> currentPolyList;
     Marker lastLocationMarker;
-    long[] timeStampObjects;
-    float[] accurracyObjects;
-    KalmanLatLong kalmanFilter;
     //accepts gps data from background service
     private LatLng lastLocation = null;
-    ArrayList<LatLng> receivedList;
-
-    //Testing
-    private GeohashRTFilter m_geoHashRTFilter;
-    private List<Location> m_lstGpsCoordinates = new ArrayList<>();
-    private List<Location> m_lstKalmanFilteredCoordinates = new ArrayList<>();
-    //Testing
+    private LatLng newLocation = null;
 
 
 
-    public BackgroundGPSReceiver(GoogleMap MapRecordingActivitymMap,
-                                 ArrayList<PolyLineData> MapRecordingActivityCurrentPolyList,
-                                 Marker MapRecordingActivityLastLocationMarker,
-                                 LatLng MapRecordingActivityLastLocation,
-                                 KalmanLatLong MapRecordingActivityKalmanFilter,
-                                 GeohashRTFilter geoHashRTFilter){
+
+    public BackgroundGPSReceiver(GoogleMap MapRecordingActivitymMap, Marker MapRecordingActivityLastLocationMarker){
         mMap = MapRecordingActivitymMap;
-        this.currentPolyList = MapRecordingActivityCurrentPolyList;
         lastLocationMarker = MapRecordingActivityLastLocationMarker;
-        lastLocation = MapRecordingActivityLastLocation;
-        kalmanFilter = MapRecordingActivityKalmanFilter;
-        m_geoHashRTFilter = geoHashRTFilter;
     }
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        MapStateManager mgr = new MapStateManager(context, "CurrentSession");
         if (intent.getAction() == "GET_LOCATION_IN_BACKGROUND"){
+            ArrayList<LatLng> receivedList;
             receivedList = intent.getParcelableArrayListExtra("LOCATION");
-            long[] timeStampObjects = intent.getLongArrayExtra("TIMESTAMP");
-            float[] accurracyObjects = intent.getFloatArrayExtra("ACCURACY");
-            //add timestamp array to intent in service
-            //add accuracy array to intent in service
-            if(receivedList == null || receivedList.size() < 1 ) {
+            lastLocation = receivedList.get(0);
+            newLocation = receivedList.get(1);
+
+
+
+            if(lastLocation  == null && newLocation  == null) {
                 //do nothing
             }else{
-                //received latLngs from service, do stuff with em
-                int i =0;
-                if(lastLocation == null){
-                    if(currentPolyList != null && !currentPolyList.isEmpty()){
-                        //if polylist not empty and last location is null for some reason
-                        // set last location from polyList
-                        lastLocation = new LatLng(currentPolyList.get(currentPolyList.size()-1).getStartlocation().latitude,
-                                currentPolyList.get(currentPolyList.size()-1).getStartlocation().longitude);
-                    }else {
-                        //otherwise last location set from received list
-                        lastLocation = new LatLng(receivedList.get(0).latitude,receivedList.get(0).longitude);
-                        i++;
-                    }
-                }
-                for(; i < receivedList.size(); i++){
-                    kalmanFilter.Process(receivedList.get(i).latitude,
-                            receivedList.get(i).longitude,
-                            accurracyObjects[i],
-                            timeStampObjects[i]);
-                    LatLng newLocation = new LatLng(kalmanFilter.get_lat(),kalmanFilter.get_lng());
-                    mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2));
+                if (mgr.getPlaybutton()) {
+                    RoundCap roundCap = new RoundCap();
+                    mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2).startCap(roundCap).endCap(roundCap));
                     PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
-                    currentPolyList.add(lineData);
                     lastLocation = newLocation;
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
+                    if (lastLocationMarker != null) {
+                        lastLocationMarker.remove();
+                    }
+                    lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
+                    mgr.addToPolyLineList(lineData);
+                    mgr.savePolylineData();
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                lastLocationMarker.remove();
-                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
-
             }
             //activityList.addAll(receivedList);
-
+        }
+        else{
+            Toast.makeText(context, "could not get intent", Toast.LENGTH_SHORT).show();
         }
     }
 }

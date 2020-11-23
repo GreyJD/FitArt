@@ -1,44 +1,35 @@
 package com.example.fitart;
 
-import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.example.fitart.KalmanLatLong;
-
 import java.util.ArrayList;
-import java.util.List;
+import mad.location.manager.lib.Interfaces.LocationServiceInterface;
+import mad.location.manager.lib.Interfaces.SimpleTempCallback;
+import mad.location.manager.lib.Services.KalmanLocationService;
+import mad.location.manager.lib.Services.ServicesHelper;
 
-import mad.location.manager.lib.Loggers.GeohashRTFilter;
 
-
-    public class GetLocationService extends Service {
+public class GetLocationService extends Service implements LocationServiceInterface {
 
         // service code used from
         // https://stackoverflow.com/questions/34573109/how-to-make-an-android-app-to-always-run-in-background
         private static final int NOTIF_ID = 1;
         private static final String NOTIF_CHANNEL_ID = "GetLocationServiceChannel"; // add once channel is in place
 
-        ArrayList<PolyLineData> locationList;
+        LatLng newLocation = null;
         LatLng lastLocation = null;
+        PolyLineData newLine = null;
+        ArrayList<LatLng> locationList;
+
 
         // boolean isActivityRunning = true;
         // IsActivityOnReceiver isActivityOnReceiver;
@@ -54,71 +45,20 @@ import mad.location.manager.lib.Loggers.GeohashRTFilter;
         public void onCreate() {
             super.onCreate();
 
-            locationList = new ArrayList<PolyLineData>();
-            final KalmanLatLong kalmanFilter = new KalmanLatLong(3);
-
-            LocationManager locationManager;
-            LocationListener locationListener;
-
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            locationListener = new LocationListener() {
+            locationList = new ArrayList<LatLng>();;
+                    ServicesHelper.addLocationServiceInterface(this);
+            ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
                 @Override
-                public void onLocationChanged(Location location) {
-                    //add each location to LocationList
-
-                    if (lastLocation == null) {
-                        lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
-                    } else {
-
-                        long timeStamp = System.currentTimeMillis();
-
-                        kalmanFilter.Process(location.getLatitude(), location.getLongitude(), location.getAccuracy(), timeStamp);
-                        LatLng newLocation = new LatLng(kalmanFilter.get_lat(), kalmanFilter.get_lng());
-
-                        PolyLineData mostRecent = new PolyLineData(lastLocation, newLocation);
-                        locationList.add(mostRecent);
-                        lastLocation = newLocation;
-
+                public void onCall(KalmanLocationService value) {
+                    if (value.IsRunning()) {
+                        return;
                     }
-
-
-                    //  if(isActivityRunning){
-                    //      broadcastLocationList();
-                    //  }
+                    value.stop();
+                    KalmanLocationService.Settings settings = KalmanLocationService.defaultSettings;
+                    value.reset(settings);
+                    value.start();
                 }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                    // maybe add some sort of screen animation if we're feelin' spicy
-                }
-            };
-
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                //print permission denied IMPORTANT: the module that starts this service should make this check again
-                // and if true then request permissions, this can only be done in an activity, not a service.
-                //must use requestPermissions for access_fine, acess_coarse, and internet
-            }
-            locationManager.requestLocationUpdates("gps", 25000, 0, locationListener);
-
-            // registers a broadcast receiver to determine if the activity we broadcast location pings
-            // to is
-            //isActivityOnReceiver = new IsActivityOnReceiver();
-            //IntentFilter intentFilter = new IntentFilter("MAP_REC_ACT_STATE");
-            //this.registerReceiver(isActivityOnReceiver,intentFilter);
+            });
 
 
         }
@@ -126,7 +66,13 @@ import mad.location.manager.lib.Loggers.GeohashRTFilter;
         @Override
         public void onDestroy() {
 
-            broadcastLocationList();
+            broadcastLocation();
+            ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
+                @Override
+                public void onCall(KalmanLocationService value) {
+                    value.stop();
+                }
+            });
             super.onDestroy();
             // !! location manager/listener needs to be deallocated here to avoid mem leak !!
 
@@ -156,18 +102,45 @@ import mad.location.manager.lib.Loggers.GeohashRTFilter;
                     .build());
         }
 
-        private void broadcastLocationList() {
+        private void broadcastLocation() {
             if (!locationList.isEmpty()) {
                 Intent sendLocation = new Intent();
-                Bundle args = new Bundle();
-                args.putSerializable("LOCATION", locationList);
-                sendLocation.putExtra("BUNDLE", args);
+                sendLocation.putParcelableArrayListExtra("LOCATION", locationList);
                 sendLocation.setAction("GET_LOCATION_IN_BACKGROUND");
                 sendBroadcast(sendLocation);
+                //newLine = null;
+                locationList = new ArrayList<LatLng>();
 
-                locationList = new ArrayList<PolyLineData>();
+
                 // I believe reference to the old arraylist is attached to the broadcasted intent so no memory is
                 // leaked here, but I'm more of a cpp guy so this needs a closer look
             }
+        }
+
+        @Override
+        public void locationChanged(Location location) {
+            if (lastLocation == null) {
+                lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+            } else {
+                newLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                double temp = CalculateDistance(lastLocation.latitude, newLocation.latitude, lastLocation.longitude, newLocation.longitude);
+                if(temp > 0.000947) {
+                    //newLine = new PolyLineData(lastLocation, newLocation);
+                    locationList.add(lastLocation);
+                    locationList.add(newLocation);
+                    broadcastLocation();
+                    lastLocation = newLocation;
+               }
+
+            }
+        }
+        public double CalculateDistance(double lat1, double lat2, double long1, double long2) {
+            double theta = long1 - long2;
+            double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
+            dist = Math.acos(dist);
+            dist = Math.toDegrees(dist);
+            dist = dist * 60 * 1.1515;
+            return dist;
         }
     }

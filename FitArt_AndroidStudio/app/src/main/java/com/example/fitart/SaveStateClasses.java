@@ -62,9 +62,12 @@ class MapStateManager {
     private static final String POLYLINES = "polylines";
     private static final String DISTANCE = "distance";
     private static final String TIME = "time";
+    private static final String PLAYBUTTON = "playbutton";
 
 
     private ArrayList<PolyLineData> polyLineList;
+
+    private boolean playButton = false;
 
     public double milesTravled;
 
@@ -76,10 +79,18 @@ class MapStateManager {
         return polyLineList;
     }
 
-    public void addToPolyLineList(ArrayList<PolyLineData> value) {
-        polyLineList = value;
+    public void setPlaybutton(boolean value){
+        playButton = value;
     }
-
+    public boolean getPlaybutton(){
+        return mapStatePrefs.getBoolean(PLAYBUTTON, false);
+    }
+    public void addToPolyLineList(PolyLineData value) {
+        polyLineList.add(value);
+    }
+    public void setPolylinesList(ArrayList<PolyLineData> list){
+        polyLineList = list;
+    }
     public void addMilesToSaveState(double miles){ milesTravled = miles;}
 
     public void addTimeToSaveState(long time){ timeTravled = time;}
@@ -98,7 +109,7 @@ class MapStateManager {
 
     public MapStateManager(Context context, String name) {
         mapStatePrefs = context.getSharedPreferences(name, Context.MODE_PRIVATE);
-        polyLineList = new ArrayList<>();
+        loadPolyListFromState();
     }
 
     public void saveMapState(GoogleMap mapMie) {
@@ -109,6 +120,7 @@ class MapStateManager {
         String json = gson.toJson(polyLineList);
         editor.putString(POLYLINES, json);
 
+        editor.putBoolean(PLAYBUTTON, playButton);
         editor.putFloat(LATITUDE, (float) position.target.latitude);
         editor.putFloat(LONGITUDE, (float) position.target.longitude);
         editor.putFloat(ZOOM, position.zoom);
@@ -119,7 +131,23 @@ class MapStateManager {
         editor.putLong(TIME, timeTravled);
         editor.commit();
     }
+    public  void savePolylineData(){
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        Gson gson = new Gson();
 
+        String json = gson.toJson(polyLineList);
+        editor.putString(POLYLINES, json);
+        editor.commit();
+
+    }
+    public void deletePolylineData(){
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        Gson gson = new Gson();
+        polyLineList = new ArrayList<>();
+        String json = gson.toJson(polyLineList);
+        editor.putString(POLYLINES, json);
+        editor.commit();
+    }
     public CameraPosition getSavedCameraPosition() {
         double latitude = mapStatePrefs.getFloat(LATITUDE, 0);
         if (latitude == 0) {
