@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -56,7 +57,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     private LatLng lastLocation = null;
     private Marker lastLocationMarker = null;
 
-    private static SeekBar seek_bar;
     ImageButton colorButton;
     ImageView colorSwatchImage;
     int defaultColor;
@@ -71,10 +71,14 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         setContentView(R.layout.map_recording);
         setupMapIfNeeded();
 
-
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
         isPaused = true;
+
+        colorButton = findViewById(R.id.button_color);
+        colorButton.setOnClickListener(colorButtonOnClickListener);
+        colorSwatchImage = findViewById(R.id.image_colorSwatchRecording);
+        defaultColor = ContextCompat.getColor(MapRecordingActivity.this, R.color.colorPrimaryDark);
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
@@ -280,10 +284,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         }
 
 
-
-
-
-
     private View.OnClickListener playPauseOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -296,6 +296,13 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 playPauseButton.setText("Play");
             else
                 playPauseButton.setText("Pause");
+        }
+    };
+
+    private View.OnClickListener colorButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            openColorPicker();
         }
     };
 
