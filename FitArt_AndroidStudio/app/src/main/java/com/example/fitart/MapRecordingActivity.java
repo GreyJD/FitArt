@@ -61,6 +61,8 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     ImageView colorSwatchImage;
     int defaultColor;
 
+    long startTime = 0;
+    long endTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -403,10 +405,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 //Attempt to update Color Swatch...Failed
                 PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
                 colorSwatchImage.setBackgroundColor(defaultColor);
-
-                //Debug purposes
-                Toast.makeText(MapRecordingActivity.this, "color:" + defaultColor, Toast.LENGTH_SHORT).show();
-
             }
         });
         ambilWarnaDialog.show();
