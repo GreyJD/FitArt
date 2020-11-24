@@ -51,6 +51,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     ImageButton colorButton;
     ImageView colorSwatchImage;
     int defaultColor;
+    MapStateManager mgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,31 +62,30 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
         colorButton = findViewById(R.id.button_colorEditing);
         colorButton.setOnClickListener(colorButtonOnClickListener);
         colorSwatchImage = findViewById(R.id.image_colorSwatchEditing);
-        defaultColor = ContextCompat.getColor(EditActivity.this, R.color.colorPrimaryDark);
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
+        mgr = new MapStateManager(this, usersFileName);
+        defaultColor = mgr.getColor();
         saveButton = findViewById(R.id.button_save);
         deleteButton = findViewById(R.id.button_delete);
 
-                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.setRetainInstance(true);
         mapFragment.getMapAsync(this);
 
-        saveButton.setOnClickListener( new View.OnClickListener()
-        {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
                 SharedPreferences pref = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
                 editor.clear();
                 Set<String> set = pref.getStringSet("FILE_NAMES", null);
-                if(set == null)
-                   set = new HashSet<String>();
-                else if(set.contains(usersFileName)){
+                if (set == null)
+                    set = new HashSet<String>();
+                else if (set.contains(usersFileName)) {
                     Intent intent = new Intent(EditActivity.this, GalleryActivity.class);
                     startActivity(intent);
                 }
@@ -161,7 +161,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 //Attempt to update Color Swatch...Failed
                 PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
                 colorSwatchImage.setBackgroundColor(defaultColor);
-
+                mgr.setColorState(defaultColor);
                 //Debug purposes
                 Toast.makeText(EditActivity.this, "color:" + defaultColor, Toast.LENGTH_SHORT).show();
                 drawLines();
@@ -171,14 +171,13 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
         ambilWarnaDialog.show();
 
     }
-    public void drawLines(){
-        if(mMap != null){
+
+    public void drawLines() {
+        if (mMap != null) {
             mMap.clear();
-            MapStateManager mgr = new MapStateManager(this, usersFileName);
             CameraPosition position = mgr.getSavedCameraPosition();
             if (position != null) {
                 CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
-                Toast.makeText(this, "entering Resume State", Toast.LENGTH_SHORT).show();
                 mMap.moveCamera(update);
 
                 mMap.setMapType(mgr.getSavedMapType());
@@ -193,9 +192,10 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                     startLatLng = newline.getStartlocation();
                     endLatLng = newline.getEndlocation();
                     mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap).color(defaultColor));
+
                 }
+
             }
         }
     }
-
 }

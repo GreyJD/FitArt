@@ -60,40 +60,53 @@ class MapStateManager {
     private static final String TILT = "tilt";
     private static final String MAPTYPE = "MAPTYPE";
     private static final String POLYLINES = "polylines";
-    private static final String PLAYBUTTON = "playbutton";
     private static final String DISTANCE = "distance";
     private static final String TIME = "time";
-
-
+    private static final String COLOR = "color";
+    private static final String PLAYBUTTON = "playbutton";
 
     private ArrayList<PolyLineData> polyLineList;
-    private boolean playButton = false;
-    private long timeTravled;
     private double milesTravled;
-
-
-
+    private int color;
+    private long timeTravled;
+    private boolean playButton;
     private SharedPreferences mapStatePrefs;
 
     public ArrayList<PolyLineData> getPolyLineList() {
         return polyLineList;
     }
-
+    public void setColor(int col){
+        color =  col;
+    }
+    public void setColorState(int col) {
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        editor.putInt(COLOR, col);
+        editor.commit();
+    }
     public void setPlaybutton(boolean value){
         playButton = value;
     }
-
     public boolean getPlaybutton(){
         return mapStatePrefs.getBoolean(PLAYBUTTON, playButton);
     }
     public void addToPolyLineList(PolyLineData value) {
         polyLineList.add(value);
     }
+
+    public void addMilesToSaveState(double miles){ milesTravled = miles;}
+
+    public void addTimeToSaveState(long time){ timeTravled = time;}
     public void setPolylinesList(ArrayList<PolyLineData> list){
         polyLineList = list;
     }
-    public void addTimeToSaveState(long time){ timeTravled = time;}
-    public void addMilesToSaveState(double miles){ milesTravled = miles;}
+    public void deletePolylineData(){
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        Gson gson = new Gson();
+        polyLineList = new ArrayList<>();
+        String json = gson.toJson(polyLineList);
+        editor.putString(POLYLINES, json);
+        editor.commit();
+    }
 
     public void loadPolyListFromState() {
         Gson gson = new Gson();
@@ -120,7 +133,6 @@ class MapStateManager {
         String json = gson.toJson(polyLineList);
         editor.putString(POLYLINES, json);
 
-        editor.putBoolean(PLAYBUTTON, playButton);
         editor.putFloat(LATITUDE, (float) position.target.latitude);
         editor.putFloat(LONGITUDE, (float) position.target.longitude);
         editor.putFloat(ZOOM, position.zoom);
@@ -129,27 +141,11 @@ class MapStateManager {
         editor.putInt(MAPTYPE, mapMie.getMapType());
         editor.putFloat(DISTANCE, (float) milesTravled);
         editor.putLong(TIME, timeTravled);
-
+        editor.putBoolean(PLAYBUTTON, playButton);
+        editor.putInt(COLOR, color);
         editor.commit();
     }
-    public  void savePolylineData(){
-        SharedPreferences.Editor editor = mapStatePrefs.edit();
-        Gson gson = new Gson();
 
-        String json = gson.toJson(polyLineList);
-        editor.putString(POLYLINES, json);
-        editor.commit();
-
-    }
-
-    public void deletePolylineData(){
-        SharedPreferences.Editor editor = mapStatePrefs.edit();
-        Gson gson = new Gson();
-        polyLineList = new ArrayList<>();
-        String json = gson.toJson(polyLineList);
-        editor.putString(POLYLINES, json);
-        editor.commit();
-    }
     public CameraPosition getSavedCameraPosition() {
         double latitude = mapStatePrefs.getFloat(LATITUDE, 0);
         if (latitude == 0) {
@@ -165,9 +161,14 @@ class MapStateManager {
         CameraPosition position = new CameraPosition(target, zoom, tilt, bearing);
         return position;
     }
+    public  void savePolylineData(){
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        Gson gson = new Gson();
 
-    public int getSavedMapType() {
-        return mapStatePrefs.getInt(MAPTYPE, GoogleMap.MAP_TYPE_NORMAL);
+        String json = gson.toJson(polyLineList);
+        editor.putString(POLYLINES, json);
+        editor.commit();
+
     }
     public double getMilesTravled(){
         double miles = mapStatePrefs.getFloat(DISTANCE, 0);
@@ -178,5 +179,13 @@ class MapStateManager {
         return time;
     }
 
+    public int getSavedMapType() {
+        return mapStatePrefs.getInt(MAPTYPE, GoogleMap.MAP_TYPE_NORMAL);
+    }
+    public int getColor(){
+        int color = mapStatePrefs.getInt(COLOR, 0);
+        return color;
+    }
 }
+
 

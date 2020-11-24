@@ -50,7 +50,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private GoogleMap mMap;
     private boolean playPauseButtonClicked = false;
-    private boolean isPaused;
+
 
     private ArrayList<PolyLineData> currentPolyList = new ArrayList<>();
     private Button playPauseButton;
@@ -72,7 +72,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         setupMapIfNeeded();
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
-        isPaused = true;
+
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
@@ -304,6 +304,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 LatLng startLatLng;
                 LatLng endLatLng;
                 double distance = 0;
+                currentPolyList = mgr.getPolyLineList();
                 for (int j = 0; j < currentPolyList.size(); j++) {
                     newline = currentPolyList.get(j);
                     startLatLng = newline.getStartlocation();
@@ -311,12 +312,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                     distance += CalculateDistance(startLatLng.latitude, endLatLng.latitude, startLatLng.longitude, endLatLng.longitude);
 
                 }
-                currentPolyList = mgr.getPolyLineList();
                 long finish = System.nanoTime();
                 long timeElapsed = finish - start;
                 currentState.addTimeToSaveState(timeElapsed);
                 currentState.setPolylinesList(currentPolyList);
                 currentState.addMilesToSaveState(distance);
+                currentState.setColor(0xff000000);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
                 playPauseButtonClicked = false;
