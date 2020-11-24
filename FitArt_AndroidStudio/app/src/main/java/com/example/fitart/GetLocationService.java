@@ -29,7 +29,7 @@ public class GetLocationService extends Service implements LocationServiceInterf
         LatLng lastLocation = null;
         PolyLineData newLine = null;
         ArrayList<LatLng> locationList;
-
+        MapStateManager currentsState;
 
         // boolean isActivityRunning = true;
         // IsActivityOnReceiver isActivityOnReceiver;
@@ -45,8 +45,8 @@ public class GetLocationService extends Service implements LocationServiceInterf
         public void onCreate() {
             super.onCreate();
 
-            locationList = new ArrayList<LatLng>();;
-                    ServicesHelper.addLocationServiceInterface(this);
+            locationList = new ArrayList<LatLng>();
+            ServicesHelper.addLocationServiceInterface(this);
             ServicesHelper.getLocationService(this, new SimpleTempCallback<KalmanLocationService>() {
                 @Override
                 public void onCall(KalmanLocationService value) {
@@ -119,14 +119,17 @@ public class GetLocationService extends Service implements LocationServiceInterf
 
         @Override
         public void locationChanged(Location location) {
+            currentsState = new MapStateManager(this, "CurrentSession");
             if (lastLocation == null) {
                 lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
+                newLocation = new LatLng(0.0,0.0);
+                locationList.add(lastLocation);
+                locationList.add(newLocation);
+                broadcastLocation();
             } else {
                 newLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 double temp = CalculateDistance(lastLocation.latitude, newLocation.latitude, lastLocation.longitude, newLocation.longitude);
-                if(temp > 0.000947) {
-                    //newLine = new PolyLineData(lastLocation, newLocation);
+                if(temp > 0.00075757576 ) {
                     locationList.add(lastLocation);
                     locationList.add(newLocation);
                     broadcastLocation();

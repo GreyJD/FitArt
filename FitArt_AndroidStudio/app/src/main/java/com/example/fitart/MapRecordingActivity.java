@@ -118,16 +118,24 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
 
     }
 
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+        playPauseButtonClicked = false;
+        mgr.setPlaybutton(playPauseButtonClicked);
+        mgr.saveMapState(mMap);
+        Intent service_intent = new Intent(this, GetLocationService.class);
+        stopService(service_intent);
+
+    }
 
     @Override
          public void onDestroy() {
             super.onDestroy();
-
-        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.setPlaybutton(playPauseButtonClicked);
-        mgr.saveMapState(mMap);
-
-
+            MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+            mgr.setPlaybutton(playPauseButtonClicked);
+            mgr.saveMapState(mMap);
     }
 
     @Override
@@ -154,9 +162,20 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
     public void onStart() {
         super.onStart();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        currentPolyList = mgr.getPolyLineList();
+        mgr.loadPolyListFromState();
         playPauseButtonClicked = mgr.getPlaybutton();
-
+        if(playPauseButtonClicked == true){
+            if(!(isMyServiceRunning(GetLocationService.class))) {
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                startService(service_intent);
+            }
+        }
+        else{
+            if(isMyServiceRunning(GetLocationService.class)) {
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                stopService(service_intent);
+            }
+        }
         setupMapIfNeeded();
 
 
@@ -166,11 +185,19 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
     public void onResume() {
         super.onResume();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        currentPolyList = mgr.getPolyLineList();
+        mgr.loadPolyListFromState();
         playPauseButtonClicked = mgr.getPlaybutton();
         if(playPauseButtonClicked == true){
-            Intent service_intent = new Intent(this, GetLocationService.class);
-            startService(service_intent);
+            if(!(isMyServiceRunning(GetLocationService.class))) {
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                startService(service_intent);
+            }
+        }
+        else{
+            if(isMyServiceRunning(GetLocationService.class)) {
+                Intent service_intent = new Intent(this, GetLocationService.class);
+                stopService(service_intent);
+            }
         }
         Toast.makeText(this, "on resume", Toast.LENGTH_SHORT).show();
         setupMapIfNeeded();
@@ -200,8 +227,6 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
                 endLatLng = newline.getEndlocation();
                 mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap));
             }
-        } else if (lastLocationMarker != null) {
-            lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
         }
         mMap.setMapType(mgr.getSavedMapType());
 
@@ -242,6 +267,7 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
 
 
         //starts/stops location gps tracking
+        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
         if (!playPauseButtonClicked) {
             //first guarantee permission to use gps
             if (ActivityCompat.checkSelfPermission(this,
@@ -257,7 +283,6 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
                     IntentFilter intentFilter = new IntentFilter("GET_LOCATION_IN_BACKGROUND");
                     this.registerReceiver(backgroundGPSReceiver,intentFilter);
                 }
-                MapStateManager mgr = new MapStateManager(this, "CurrentSession");
                 mgr.setPlaybutton(playPauseButtonClicked);
                 mgr.saveMapState(mMap);
                 //sets up listener for broadcasts. moves gps data from service to activity
@@ -267,6 +292,8 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
             }
         } else {
             playPauseButtonClicked = false;
+            mgr.setPlaybutton(playPauseButtonClicked);
+            mgr.saveMapState(mMap);
             // Intent service_intent = new Intent(this, GetLocationService.class); //old code - remove if/when irrelevant
             Toast.makeText(this, "pause button clicked?", Toast.LENGTH_SHORT).show();
             //Intent service_intent = new Intent(this, GetLocationService.class);
@@ -279,6 +306,8 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
 
     public void doneButtonClicked(View view) {
 
+        Intent service_intent = new Intent(this, GetLocationService.class);
+        stopService(service_intent);
         AlertDialog.Builder builder = new AlertDialog.Builder(MapRecordingActivity.this);
         builder.setMessage("Give it a name!").setTitle("Are you finished?").setCancelable(false);
         final EditText userInput = new EditText(MapRecordingActivity.this);
@@ -287,26 +316,32 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
-                ServicesHelper.getLocationService(MapRecordingActivity.this, new SimpleTempCallback<KalmanLocationService>() {
-                    @Override
-                    public void onCall(KalmanLocationService value) {
-                        value.stop();
-                    }
-                });
                 String usersName = userInput.getText().toString();
                 MapStateManager currentState = new MapStateManager(MapRecordingActivity.this, usersName);
-                Intent service_intent = new Intent(MapRecordingActivity.this, GetLocationService.class);
-                stopService(service_intent);
+                MapStateManager mgr = new MapStateManager(MapRecordingActivity.this, "CurrentSession");
+                mgr.loadPolyListFromState();
+                PolyLineData newline;
+                LatLng startLatLng;
+                LatLng endLatLng;
+                double distance = 0;
+                for (int j = 0; j < currentPolyList.size(); j++) {
+                    newline = currentPolyList.get(j);
+                    startLatLng = newline.getStartlocation();
+                    endLatLng = newline.getEndlocation();
+                    distance += CalculateDistance(startLatLng.latitude, endLatLng.latitude, startLatLng.longitude, endLatLng.longitude);
+
+                }
+                currentPolyList = mgr.getPolyLineList();
                 long finish = System.nanoTime();
                 long timeElapsed = finish - start;
                 currentState.addTimeToSaveState(timeElapsed);
                 currentState.setPolylinesList(currentPolyList);
-                currentState.addMilesToSaveState(currentMilesTravled);
+                currentState.addMilesToSaveState(distance);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
                 lastLocation = null;
                 playPauseButtonClicked = false;
-                MapStateManager mgr = new MapStateManager(MapRecordingActivity.this, "CurrentSession");
+
                 mgr.deletePolylineData();
                 mMap.clear();
                 Intent intent = new Intent(MapRecordingActivity.this, EditActivity.class);
@@ -323,6 +358,23 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public double CalculateDistance(double lat1, double lat2, double long1, double long2) {
+        double theta = long1 - long2;
+        double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
+        dist = Math.acos(dist);
+        dist = Math.toDegrees(dist);
+        dist = dist * 60 * 1.1515;
+        return dist;
     }
 
 

@@ -41,7 +41,6 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     private String usersFileName;
     private Button saveButton;
     private Button deleteButton;
-    private Set<String> userFileSet = new HashSet<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +74,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                     Intent intent = new Intent(EditActivity.this, GalleryActivity.class);
                     startActivity(intent);
                 }
-
                 set.add(usersFileName);
-
-                userFileSet.addAll(set);
-
-                editor.putStringSet("FILE_NAMES", userFileSet);
+                editor.putStringSet("FILE_NAMES", set);
                 editor.commit();
                 Intent intent = new Intent(EditActivity.this, GalleryActivity.class);
                 startActivity(intent);
@@ -95,16 +90,12 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        SharedPreferences prefs = getSharedPreferences(usersFileName, Context.MODE_PRIVATE);
+                        SharedPreferences prefs = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.clear();
-                        editor.commit();
-                        prefs = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
-                        editor = prefs.edit();
                         Set<String> set = prefs.getStringSet("FILE_NAMES", null);
                         set.remove(usersFileName);
-                        userFileSet.addAll(set);
-                        editor.putStringSet("FILE_NAMES", userFileSet);
+                        editor.putStringSet("FILE_NAMES", set);
                         editor.commit();
 
                         Intent intent = new Intent(EditActivity.this, GalleryActivity.class);

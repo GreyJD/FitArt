@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.location.Location;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -26,6 +28,7 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
     //accepts gps data from background service
     private LatLng lastLocation = null;
     private LatLng newLocation = null;
+    private LatLng nullLatLng = new LatLng(0.0,0.0);
 
 
 
@@ -39,6 +42,8 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         MapStateManager mgr = new MapStateManager(context, "CurrentSession");
+
+        boolean play = mgr.getPlaybutton();
         if (intent.getAction() == "GET_LOCATION_IN_BACKGROUND"){
             ArrayList<LatLng> receivedList;
             receivedList = intent.getParcelableArrayListExtra("LOCATION");
@@ -47,10 +52,16 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
 
 
 
-            if(lastLocation  == null && newLocation  == null) {
-                //do nothing
-            }else{
-                if (mgr.getPlaybutton()) {
+            if(lastLocation  != null && newLocation.equals(new LatLng(0.0,0.0))) {
+                if (lastLocationMarker != null) {
+                    lastLocationMarker.remove();
+                }
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
+                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
+
+            }
+            if (play) {
+                if(!(newLocation.equals(nullLatLng))) {
                     RoundCap roundCap = new RoundCap();
                     mMap.addPolyline(new PolylineOptions().clickable(false).add(newLocation, lastLocation).jointType(2).startCap(roundCap).endCap(roundCap));
                     PolyLineData lineData = new PolyLineData(lastLocation, newLocation);
@@ -64,10 +75,16 @@ public class BackgroundGPSReceiver extends BroadcastReceiver{
                     mgr.savePolylineData();
                 }
             }
+            else {
+                if (lastLocationMarker != null) {
+                    lastLocationMarker.remove();
+                }
+                lastLocationMarker = mMap.addMarker(new MarkerOptions().position(lastLocation).title("Current Location").flat(true));
+            }
+        }
             //activityList.addAll(receivedList);
-        }
-        else{
-            Toast.makeText(context, "could not get intent", Toast.LENGTH_SHORT).show();
-        }
     }
+
+
 }
+
