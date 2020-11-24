@@ -37,20 +37,13 @@ public class GalleryActivity extends AppCompatActivity {
         menu_button = findViewById(R.id.button_main);
 
         prefs = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
-
         Set<String> set = prefs.getStringSet("FILE_NAMES", null);
         String[] savedFileNames = set.toArray(new String[set.size()]);
-        double[] distanceArray = new double[set.size()];
-
-        for(int i = 0; i < savedFileNames.length; i++ ) {
-            MapStateManager state = new MapStateManager(this, savedFileNames[i]);
-            distanceArray[i] = state.getMilesTravled();
-        }
 
         mRecyclerView =  findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
-        mAdapter = new GalleryAdapter(savedFileNames, distanceArray);
+        mAdapter = new GalleryAdapter(savedFileNames);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         menu_button.setOnClickListener(new View.OnClickListener()

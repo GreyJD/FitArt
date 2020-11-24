@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,13 +10,12 @@
     app:cardElevation="8dp">
 
     <RelativeLayout
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="4dp">
 
-        <ImageView
 
+        <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:padding="2dp"

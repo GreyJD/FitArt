@@ -4,7 +4,8 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:background="@color/colorPrimary">
 
 
     <fragment
@@ -12,8 +13,9 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/action_bar_background02"
         android:layout_below="@+id/toolbar"
-        android:layout_marginTop="-56dp"
+        android:layout_margin="8dp"
         tools:context=".EditActivity" />
 
     <include
@@ -22,37 +24,27 @@
         map:titleTextColor="@color/colorWhite" />
 
     <ImageView
-        android:id="@+id/action_bar_background"
+        android:id="@+id/action_bar_background02"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="73dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="-1dp"
-        android:contentDescription="Background_PrimaryDark"
-        map:srcCompat="@color/colorPrimaryDark" />
+        android:layout_marginBottom="77dp"
+        android:background="@color/colorPrimaryDark" />
 
     <Button
         android:id="@+id/button_save"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
+        android:layout_width="150dp"
+        android:layout_height="58dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="248dp"
-        android:layout_marginBottom="42dp"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/button_background02"
         android:text="Save"
-        android:textColor="@color/colorWhite" />
-
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="45dp"
-        android:layout_marginBottom="43dp"
-        android:background="@drawable/button_background02"
-        android:text="Delete"
-        android:textColor="@color/colorWhite" />
+        android:textColor="@color/colorWhite"/>
 
     <SeekBar
         android:id="@+id/seekBar_BrushSize"
@@ -60,44 +52,47 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/image_paintBrush"
         android:layout_alignBottom="@+id/image_paintBrush"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="3dp"
         android:layout_toEndOf="@+id/image_paintBrush"
-        android:padding="10dp"
         android:progressDrawable="@drawable/seekbar_style"
         android:splitTrack="false"
         android:thumb="@drawable/custom_thumb" />
-
-    <ImageButton
-        android:id="@+id/button_color"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:padding="10dp"
-        android:layout_alignTop="@+id/image_paintBrush"
-        android:layout_alignBottom="@+id/image_paintBrush"
-        android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_color_wheel" />
 
     <ImageView
         android:id="@+id/image_paintBrush"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_alignTop="@+id/action_bar_background"
+        android:layout_alignTop="@+id/action_bar_background02"
         android:layout_alignParentStart="true"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="13dp"
         android:background="@drawable/paint_brush" />
 
+    <ImageButton
+        android:id="@+id/button_colorEditing"
+        android:layout_width="100dp"
+        android:layout_height="39dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/button_background01"
+        android:src="@drawable/ic_color_wheel" />
 
     <ImageView
-        android:id="@+id/image_colorSwatch"
+        android:id="@+id/image_colorSwatchEditing"
         android:layout_width="45dp"
-        android:layout_height="5dp"
-        android:layout_alignStart="@+id/button_color"
-        android:layout_alignBottom="@+id/button_color"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="-1dp"
-        android:background="@color/colorPrimary"/>
+        android:layout_height="10dp"
+        android:layout_alignStart="@+id/button_colorEditing"
+        android:layout_alignEnd="@+id/button_colorEditing"
+        android:layout_alignBottom="@+id/button_colorEditing"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-15dp"
+        android:background="@color/colorPrimary" />
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.example.fitart;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
@@ -7,11 +8,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -35,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+
 public class EditActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -42,11 +48,20 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     private Button saveButton;
     private Button deleteButton;
 
+    ImageButton colorButton;
+    ImageView colorSwatchImage;
+    int defaultColor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_route);
 
+        colorButton = findViewById(R.id.button_colorEditing);
+        colorButton.setOnClickListener(colorButtonOnClickListener);
+        colorSwatchImage = findViewById(R.id.image_colorSwatchEditing);
+        defaultColor = ContextCompat.getColor(EditActivity.this, R.color.colorPrimaryDark);
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
@@ -136,14 +151,44 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
             PolyLineData newline;
             LatLng startLatLng;
             LatLng endLatLng;
-            Cap roundCap = new RoundCap();
             for(int i = 0; i < newLines.size(); i++){
                 newline =  newLines.get(i);
                 startLatLng = newline.getStartlocation();
                 endLatLng = newline.getEndlocation();
-                mMap.addPolyline(new PolylineOptions().clickable(false).add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap));
+                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
             }
         }
+
+    }
+
+    private View.OnClickListener colorButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            openColorPicker();
+        }
+    };
+
+    public void openColorPicker() {
+        AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(this, defaultColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                defaultColor = color;
+
+                //Attempt to update Color Swatch...Failed
+                PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
+                colorSwatchImage.setBackgroundColor(defaultColor);
+
+                //Debug purposes
+                Toast.makeText(EditActivity.this, "color:" + defaultColor, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        ambilWarnaDialog.show();
 
     }
 

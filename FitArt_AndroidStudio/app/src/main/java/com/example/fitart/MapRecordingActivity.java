@@ -13,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 
 import android.content.res.Configuration;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
@@ -50,32 +49,29 @@ import com.google.android.gms.maps.model.RoundCap;
 
 import java.util.ArrayList;
 
-
-import mad.location.manager.lib.Interfaces.ILogger;
-import mad.location.manager.lib.Interfaces.SimpleTempCallback;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-import mad.location.manager.lib.Interfaces.LocationServiceInterface;
-import mad.location.manager.lib.Services.KalmanLocationService;
-import mad.location.manager.lib.Services.ServicesHelper;
-
-
-
-public class MapRecordingActivity extends AppCompatActivity implements  OnMapReadyCallback {
+public class MapRecordingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     public static final String EXTRA_MESSAGE = "com.example.MapRecordingActivity.MESSAGE";
     private GoogleMap mMap;
     private boolean playPauseButtonClicked = false;
-    private boolean first = true;
+    private boolean isPaused;
+
     private ArrayList<PolyLineData> currentPolyList = new ArrayList<>();
-    private double currentMilesTravled = 0;
     private Button playPauseButton;
     private Button doneButton;
-    private LatLng lastLocation = null;
+
     private Marker lastLocationMarker = null;
     private long start;
     private BackgroundGPSReceiver backgroundGPSReceiver;
 
+    ImageButton colorButton;
+    ImageView colorSwatchImage;
+    int defaultColor;
+
+    long startTime = 0;
+    long endTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +83,12 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
         setupMapIfNeeded();
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
+        isPaused = true;
+
+        colorButton = findViewById(R.id.button_color);
+        colorButton.setOnClickListener(colorButtonOnClickListener);
+        colorSwatchImage = findViewById(R.id.image_colorSwatchRecording);
+        defaultColor = ContextCompat.getColor(MapRecordingActivity.this, R.color.colorPrimaryDark);
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
@@ -238,6 +240,20 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
         public void onClick(View v) {
 
             playPauseButtonClicked(v);
+
+            //Change play pause button text
+            isPaused = !isPaused;
+            if (isPaused)
+                playPauseButton.setText("Play");
+            else
+                playPauseButton.setText("Pause");
+        }
+    };
+
+    private View.OnClickListener colorButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            openColorPicker();
         }
     };
 
@@ -259,6 +275,7 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
         }
 
     }
+
 
 
     public void playPauseButtonClicked(View view) {
@@ -378,6 +395,26 @@ public class MapRecordingActivity extends AppCompatActivity implements  OnMapRea
     }
 
 
+
+    public void openColorPicker() {
+        AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(this, defaultColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                defaultColor = color;
+
+                //Attempt to update Color Swatch...Failed
+                PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
+                colorSwatchImage.setBackgroundColor(defaultColor);
+            }
+        });
+        ambilWarnaDialog.show();
+
+    }
 }
 
 

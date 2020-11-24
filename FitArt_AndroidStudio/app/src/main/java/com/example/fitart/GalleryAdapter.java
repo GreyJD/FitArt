@@ -3,45 +3,34 @@ package com.example.fitart;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Set;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyMapViewHolder> {
     private String[] prefList;
-    private double[] distanceList;
 
 
     public static class MyMapViewHolder extends RecyclerView.ViewHolder {
 
         public TextView prefName;
-
-        public TextView distanceNumView;
+        public TextView distance;
+        public TextView distanceNum;
         public View mView;
 
         public MyMapViewHolder(View v) {
             super(v);
             prefName = v.findViewById(R.id.card_name);
-            distanceNumView = v.findViewById(R.id.card_distance_num);
             mView = v;
-
         }
 
     }
-    public GalleryAdapter(String[] list, double[] dist){
+    public GalleryAdapter(String[] list){
             prefList = list;
-            distanceList = dist;
     }
 
     @Override
@@ -56,11 +45,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyMapVie
 
     @Override
     public void onBindViewHolder(@NonNull MyMapViewHolder holder, final int position) {
-        holder.mView.setLongClickable(true);
-        DecimalFormat df = new DecimalFormat("#.###");
-        String doubleString = df.format(distanceList[position]);
-
-        holder.distanceNumView.setText(doubleString);
         holder.prefName.setText(prefList[position]);
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +57,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyMapVie
                 context.startActivity(intent);
             }
         });
-
     }
 
     @Override

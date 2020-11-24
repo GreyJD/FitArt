@@ -60,15 +60,11 @@ class MapStateManager {
     private static final String TILT = "tilt";
     private static final String MAPTYPE = "MAPTYPE";
     private static final String POLYLINES = "polylines";
-    private static final String DISTANCE = "distance";
-    private static final String TIME = "time";
     private static final String PLAYBUTTON = "playbutton";
 
 
     private ArrayList<PolyLineData> polyLineList;
     private boolean playButton = false;
-    private double milesTravled;
-    private long timeTravled;
 
 
     private SharedPreferences mapStatePrefs;
@@ -89,9 +85,6 @@ class MapStateManager {
     public void setPolylinesList(ArrayList<PolyLineData> list){
         polyLineList = list;
     }
-    public void addMilesToSaveState(double miles){ milesTravled = miles;}
-
-    public void addTimeToSaveState(long time){ timeTravled = time;}
 
     public void loadPolyListFromState() {
         Gson gson = new Gson();
@@ -125,8 +118,7 @@ class MapStateManager {
         editor.putFloat(TILT, position.tilt);
         editor.putFloat(BEARING, position.bearing);
         editor.putInt(MAPTYPE, mapMie.getMapType());
-        editor.putFloat(DISTANCE, (float) milesTravled);
-        editor.putLong(TIME, timeTravled);
+
 
         editor.commit();
     }
@@ -161,14 +153,6 @@ class MapStateManager {
 
         CameraPosition position = new CameraPosition(target, zoom, tilt, bearing);
         return position;
-    }
-    public double getMilesTravled(){
-        double miles = mapStatePrefs.getFloat(DISTANCE, 0);
-        return miles;
-    }
-    public long getTimeTravled(){
-        long time = mapStatePrefs.getLong(TIME, 0);
-        return time;
     }
 
     public int getSavedMapType() {
