@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public final String savedMapsfile = "SAVED_ART";
+    private SharedPreferences prefs;
 
 
 
@@ -36,25 +38,40 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Create a shared preference file to store saved runs
-       // Set<String> testSet = new HashSet<String>();
-      //  testSet.add("test1");
-      //  testSet.add("test2");
 
-        SharedPreferences pref = getSharedPreferences(savedMapsfile, Context.MODE_PRIVATE);
-        //SharedPreferences.Editor editor = pref.edit();
-        //editor.putStringSet("FILE_NAMES", testSet);
-       // editor.commit();
-        //Connect variables to layout
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         press_to_start = findViewById(R.id.button_start);
         gallery_button = findViewById(R.id.button_archive);
 
+        prefs = getSharedPreferences("SAVED_ART", Context.MODE_PRIVATE);
+
+        //Get time and distance from shared prefs
+        Set<String> set = prefs.getStringSet("FILE_NAMES", null);
+        String[] savedFileNames = set.toArray(new String[set.size()]);
+        double totalDist = 0.0;
+        long totalTime = 0;
+
+        for(int i = 0; i < savedFileNames.length; i++ ) {
+            MapStateManager state = new MapStateManager(this, savedFileNames[i]);
+            totalDist += state.getMilesTravled();
+            totalTime += state.getTimeTravled();
+        }
+        DecimalFormat df = new DecimalFormat("#.###");
+        String stringDist = df.format(totalDist);
+        long totalSeconds = totalTime/1000000000;
+        long seconds = totalSeconds % 60;
+        long hours = totalSeconds / 60;
+        long mins = hours % 60;
+        hours = hours / 60;
+        String stringTime = ( hours + " hrs, " + mins + " mins, " + seconds + " secs");
+
         ///Populate Recycler View///
         ArrayList<RVCard> statsList = new ArrayList<>();
-        statsList.add(new RVCard(R.drawable.ic_runner, "Total Distance", "0.0 miles")); //Distance card
-        statsList.add(new RVCard(R.drawable.ic_clock, "Total Time", "0 hrs, 0 mins, 0 secs")); //Time in app card
+        statsList.add(new RVCard(R.drawable.ic_runner, "Total Distance", stringDist)); //Distance card
+        statsList.add(new RVCard(R.drawable.ic_clock, "Total Time", stringTime)); //Time in app card
         ///Recycler View Setup ///
         mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);

@@ -1,7 +1,7 @@
 package com.example.fitart;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 
@@ -12,44 +12,38 @@ import android.content.IntentFilter;
 
 import android.content.pm.PackageManager;
 
-import android.content.res.Configuration;
-import android.graphics.PorterDuff;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+
 import android.os.Bundle;
 
 import android.view.View;
 import android.widget.Button;
 
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.SeekBar;
+
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+
 
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
 import java.util.ArrayList;
 
-import yuku.ambilwarna.AmbilWarnaDialog;
+
 
 public class MapRecordingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -66,12 +60,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     private long start;
     private BackgroundGPSReceiver backgroundGPSReceiver;
 
-    ImageButton colorButton;
-    ImageView colorSwatchImage;
-    int defaultColor;
 
-    long startTime = 0;
-    long endTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +73,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
         playPauseButton = findViewById(R.id.button_play_pause);
         playPauseButton.setOnClickListener(playPauseOnClickListener);
         isPaused = true;
-
-        colorButton = findViewById(R.id.button_color);
-        colorButton.setOnClickListener(colorButtonOnClickListener);
-        colorSwatchImage = findViewById(R.id.image_colorSwatchRecording);
-        defaultColor = ContextCompat.getColor(MapRecordingActivity.this, R.color.colorPrimaryDark);
 
         doneButton = findViewById(R.id.button_done);
         doneButton.setOnClickListener(doneButtonOnClickListener);
@@ -164,7 +148,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public void onStart() {
         super.onStart();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.loadPolyListFromState();
         playPauseButtonClicked = mgr.getPlaybutton();
         if(playPauseButtonClicked == true){
             if(!(isMyServiceRunning(GetLocationService.class))) {
@@ -178,6 +161,10 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 stopService(service_intent);
             }
         }
+        if (!playPauseButtonClicked)
+            playPauseButton.setText("Play");
+        else
+            playPauseButton.setText("Pause");
         setupMapIfNeeded();
 
 
@@ -187,7 +174,6 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public void onResume() {
         super.onResume();
         MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        mgr.loadPolyListFromState();
         playPauseButtonClicked = mgr.getPlaybutton();
         if(playPauseButtonClicked == true){
             if(!(isMyServiceRunning(GetLocationService.class))) {
@@ -201,6 +187,10 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 stopService(service_intent);
             }
         }
+        if (!playPauseButtonClicked)
+            playPauseButton.setText("Play");
+        else
+            playPauseButton.setText("Pause");
         Toast.makeText(this, "on resume", Toast.LENGTH_SHORT).show();
         setupMapIfNeeded();
 
@@ -210,27 +200,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-
-        MapStateManager mgr = new MapStateManager(this, "CurrentSession");
-        CameraPosition position = mgr.getSavedCameraPosition();
-        currentPolyList = mgr.getPolyLineList();
-        mMap.clear();
-        if (position != null) {
-            CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
-            Toast.makeText(this, "on map ready", Toast.LENGTH_SHORT).show();
-            mMap.moveCamera(update);
-            PolyLineData newline;
-            LatLng startLatLng;
-            LatLng endLatLng;
-            Cap roundCap = new RoundCap();
-            for (int i = 0; i < currentPolyList.size(); i++) {
-                newline = currentPolyList.get(i);
-                startLatLng = newline.getStartlocation();
-                endLatLng = newline.getEndlocation();
-                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap));
-            }
-        }
-        mMap.setMapType(mgr.getSavedMapType());
+        drawLines();
 
     }
 
@@ -242,20 +212,13 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
             playPauseButtonClicked(v);
 
             //Change play pause button text
-            isPaused = !isPaused;
-            if (isPaused)
+            if (!playPauseButtonClicked)
                 playPauseButton.setText("Play");
             else
                 playPauseButton.setText("Pause");
         }
     };
 
-    private View.OnClickListener colorButtonOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            openColorPicker();
-        }
-    };
 
     private View.OnClickListener doneButtonOnClickListener = new View.OnClickListener() {
 
@@ -356,14 +319,12 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 currentState.addMilesToSaveState(distance);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
-                lastLocation = null;
                 playPauseButtonClicked = false;
 
                 mgr.deletePolylineData();
                 mMap.clear();
                 Intent intent = new Intent(MapRecordingActivity.this, EditActivity.class);
                 intent.putExtra(EXTRA_MESSAGE, usersName);
-                currentMilesTravled = 0;
                 startActivity(intent);
             }
         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -396,24 +357,31 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
 
 
 
-    public void openColorPicker() {
-        AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(this, defaultColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {
+    public void drawLines(){
+        if(mMap != null){
+            mMap.clear();
+            MapStateManager mgr = new MapStateManager(this, "CurrentSession");
+            CameraPosition position = mgr.getSavedCameraPosition();
+            if (position != null) {
+                CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+                mMap.moveCamera(update);
 
+                mMap.setMapType(mgr.getSavedMapType());
+                mgr.loadPolyListFromState();
+                ArrayList<PolyLineData> newLines = mgr.getPolyLineList();
+                PolyLineData newline;
+                LatLng startLatLng;
+                LatLng endLatLng;
+                Cap roundCap = new RoundCap();
+                for (int i = 0; i < newLines.size(); i++) {
+                    newline = newLines.get(i);
+                    startLatLng = newline.getStartlocation();
+                    endLatLng = newline.getEndlocation();
+                    mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap));
+                }
             }
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                defaultColor = color;
-
-                //Attempt to update Color Swatch...Failed
-                PorterDuff.Mode mMode = PorterDuff.Mode.SRC_ATOP;
-                colorSwatchImage.setBackgroundColor(defaultColor);
-            }
-        });
-        ambilWarnaDialog.show();
-
+            mMap.setMapType(mgr.getSavedMapType());
+        }
     }
 }
 

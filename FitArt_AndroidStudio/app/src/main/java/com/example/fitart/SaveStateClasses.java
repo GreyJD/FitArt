@@ -61,10 +61,16 @@ class MapStateManager {
     private static final String MAPTYPE = "MAPTYPE";
     private static final String POLYLINES = "polylines";
     private static final String PLAYBUTTON = "playbutton";
+    private static final String DISTANCE = "distance";
+    private static final String TIME = "time";
+
 
 
     private ArrayList<PolyLineData> polyLineList;
     private boolean playButton = false;
+    private long timeTravled;
+    private double milesTravled;
+
 
 
     private SharedPreferences mapStatePrefs;
@@ -76,6 +82,7 @@ class MapStateManager {
     public void setPlaybutton(boolean value){
         playButton = value;
     }
+
     public boolean getPlaybutton(){
         return mapStatePrefs.getBoolean(PLAYBUTTON, playButton);
     }
@@ -85,6 +92,8 @@ class MapStateManager {
     public void setPolylinesList(ArrayList<PolyLineData> list){
         polyLineList = list;
     }
+    public void addTimeToSaveState(long time){ timeTravled = time;}
+    public void addMilesToSaveState(double miles){ milesTravled = miles;}
 
     public void loadPolyListFromState() {
         Gson gson = new Gson();
@@ -118,7 +127,8 @@ class MapStateManager {
         editor.putFloat(TILT, position.tilt);
         editor.putFloat(BEARING, position.bearing);
         editor.putInt(MAPTYPE, mapMie.getMapType());
-
+        editor.putFloat(DISTANCE, (float) milesTravled);
+        editor.putLong(TIME, timeTravled);
 
         editor.commit();
     }
@@ -131,6 +141,7 @@ class MapStateManager {
         editor.commit();
 
     }
+
     public void deletePolylineData(){
         SharedPreferences.Editor editor = mapStatePrefs.edit();
         Gson gson = new Gson();
@@ -158,4 +169,14 @@ class MapStateManager {
     public int getSavedMapType() {
         return mapStatePrefs.getInt(MAPTYPE, GoogleMap.MAP_TYPE_NORMAL);
     }
+    public double getMilesTravled(){
+        double miles = mapStatePrefs.getFloat(DISTANCE, 0);
+        return miles;
+    }
+    public long getTimeTravled(){
+        long time = mapStatePrefs.getLong(TIME, 0);
+        return time;
+    }
+
 }
+

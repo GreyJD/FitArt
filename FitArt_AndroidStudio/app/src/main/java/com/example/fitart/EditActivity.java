@@ -137,28 +137,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-
-        MapStateManager mgr = new MapStateManager(this, usersFileName);
-        CameraPosition position = mgr.getSavedCameraPosition();
-        if (position != null) {
-            CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
-            Toast.makeText(this, "entering Resume State", Toast.LENGTH_SHORT).show();
-            mMap.moveCamera(update);
-
-            mMap.setMapType(mgr.getSavedMapType());
-            mgr.loadPolyListFromState();
-            ArrayList<PolyLineData> newLines = mgr.getPolyLineList();
-            PolyLineData newline;
-            LatLng startLatLng;
-            LatLng endLatLng;
-            for(int i = 0; i < newLines.size(); i++){
-                newline =  newLines.get(i);
-                startLatLng = newline.getStartlocation();
-                endLatLng = newline.getEndlocation();
-                mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng));
-            }
-        }
-
+        drawLines();
     }
 
     private View.OnClickListener colorButtonOnClickListener = new View.OnClickListener() {
@@ -185,11 +164,38 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
                 //Debug purposes
                 Toast.makeText(EditActivity.this, "color:" + defaultColor, Toast.LENGTH_SHORT).show();
+                drawLines();
 
             }
         });
         ambilWarnaDialog.show();
 
+    }
+    public void drawLines(){
+        if(mMap != null){
+            mMap.clear();
+            MapStateManager mgr = new MapStateManager(this, usersFileName);
+            CameraPosition position = mgr.getSavedCameraPosition();
+            if (position != null) {
+                CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+                Toast.makeText(this, "entering Resume State", Toast.LENGTH_SHORT).show();
+                mMap.moveCamera(update);
+
+                mMap.setMapType(mgr.getSavedMapType());
+                mgr.loadPolyListFromState();
+                ArrayList<PolyLineData> newLines = mgr.getPolyLineList();
+                PolyLineData newline;
+                LatLng startLatLng;
+                LatLng endLatLng;
+                Cap roundCap = new RoundCap();
+                for (int i = 0; i < newLines.size(); i++) {
+                    newline = newLines.get(i);
+                    startLatLng = newline.getStartlocation();
+                    endLatLng = newline.getEndlocation();
+                    mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap).color(defaultColor));
+                }
+            }
+        }
     }
 
 }
