@@ -51,8 +51,6 @@ public class EditActivity<size> extends FragmentActivity implements OnMapReadyCa
     private SeekBar brushSize;
     private float size;
 
-    private SeekBar brushSize;
-
     ImageButton colorButton;
     ImageView colorSwatchImage;
     int defaultColor;
@@ -156,24 +154,6 @@ public class EditActivity<size> extends FragmentActivity implements OnMapReadyCa
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
-
-        brushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int size = 0;
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                size = progress;
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                String message = "Brush size: " + size / 20;
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-
 
     }
 
