@@ -42,7 +42,7 @@ import java.util.Set;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class EditActivity extends FragmentActivity implements OnMapReadyCallback {
+public class EditActivity<size> extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private String usersFileName;
@@ -50,6 +50,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     private Button deleteButton;
     private SeekBar brushSize;
     private float size;
+
+    private SeekBar brushSize;
 
     ImageButton colorButton;
     ImageView colorSwatchImage;
@@ -67,6 +69,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
         colorSwatchImage = findViewById(R.id.image_colorSwatchEditing);
         brushSize = findViewById(R.id.seekBar_BrushSize);
         size = 10;
+
+        brushSize = findViewById(R.id.seekBar_BrushSize);
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
@@ -149,6 +153,23 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
 
                 String message = "Brush size: " + size;
                 drawLines();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        brushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int size = 0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                size = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                String message = "Brush size: " + size / 20;
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
