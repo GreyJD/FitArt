@@ -64,6 +64,7 @@ class MapStateManager {
     private static final String TIME = "time";
     private static final String COLOR = "color";
     private static final String PLAYBUTTON = "playbutton";
+    private static final String LINESIZE = "linesize";
 
     private ArrayList<PolyLineData> polyLineList;
     private double milesTravled;
@@ -71,6 +72,7 @@ class MapStateManager {
     private long timeTravled;
     private boolean playButton;
     private SharedPreferences mapStatePrefs;
+    private float lineSize;
 
     public ArrayList<PolyLineData> getPolyLineList() {
         return polyLineList;
@@ -81,6 +83,14 @@ class MapStateManager {
     public void setColorState(int col) {
         SharedPreferences.Editor editor = mapStatePrefs.edit();
         editor.putInt(COLOR, col);
+        editor.commit();
+    }
+    public void setLineSize(float size){
+        lineSize =  size;
+    }
+    public void setSizeState(float size) {
+        SharedPreferences.Editor editor = mapStatePrefs.edit();
+        editor.putFloat(LINESIZE, size);
         editor.commit();
     }
     public void setPlaybutton(boolean value){
@@ -143,6 +153,7 @@ class MapStateManager {
         editor.putLong(TIME, timeTravled);
         editor.putBoolean(PLAYBUTTON, playButton);
         editor.putInt(COLOR, color);
+        editor.putFloat(LINESIZE, lineSize);
         editor.commit();
     }
 
@@ -185,6 +196,10 @@ class MapStateManager {
     public int getColor(){
         int color = mapStatePrefs.getInt(COLOR, 0);
         return color;
+    }
+    public float getLineSize(){
+        float lineSize = mapStatePrefs.getFloat(LINESIZE, 0);
+        return lineSize;
     }
 }
 

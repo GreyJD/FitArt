@@ -318,6 +318,7 @@ public class MapRecordingActivity extends AppCompatActivity implements OnMapRead
                 currentState.setPolylinesList(currentPolyList);
                 currentState.addMilesToSaveState(distance);
                 currentState.setColor(0xff000000);
+                currentState.setLineSize(10);
                 currentState.saveMapState(mMap);
                 currentPolyList = new ArrayList<>();
                 playPauseButtonClicked = false;

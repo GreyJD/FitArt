@@ -66,13 +66,14 @@ public class EditActivity<size> extends FragmentActivity implements OnMapReadyCa
         colorButton.setOnClickListener(colorButtonOnClickListener);
         colorSwatchImage = findViewById(R.id.image_colorSwatchEditing);
         brushSize = findViewById(R.id.seekBar_BrushSize);
-        size = 10;
+
 
         brushSize = findViewById(R.id.seekBar_BrushSize);
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
         mgr = new MapStateManager(this, usersFileName);
+        size = mgr.getLineSize();
         defaultColor = mgr.getColor();
         saveButton = findViewById(R.id.button_save);
         deleteButton = findViewById(R.id.button_delete);
@@ -81,7 +82,7 @@ public class EditActivity<size> extends FragmentActivity implements OnMapReadyCa
                 .findFragmentById(R.id.map);
         mapFragment.setRetainInstance(true);
         mapFragment.getMapAsync(this);
-        brushSize.setProgress(10);
+        brushSize.setProgress((int)size);
         brushSize.setMax(100);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -150,6 +151,7 @@ public class EditActivity<size> extends FragmentActivity implements OnMapReadyCa
             public void onStopTrackingTouch(SeekBar seekBar) {
 
                 String message = "Brush size: " + size;
+                mgr.setSizeState(size);
                 drawLines();
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
