@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -47,6 +48,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
     private String usersFileName;
     private Button saveButton;
     private Button deleteButton;
+    private SeekBar brushSize;
+    private float size;
 
     ImageButton colorButton;
     ImageView colorSwatchImage;
@@ -62,6 +65,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
         colorButton = findViewById(R.id.button_colorEditing);
         colorButton.setOnClickListener(colorButtonOnClickListener);
         colorSwatchImage = findViewById(R.id.image_colorSwatchEditing);
+        brushSize = findViewById(R.id.seekBar_BrushSize);
+        size = 10;
 
         Intent intent = getIntent();
         usersFileName = intent.getStringExtra(MapRecordingActivity.EXTRA_MESSAGE);
@@ -74,6 +79,8 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.setRetainInstance(true);
         mapFragment.getMapAsync(this);
+        brushSize.setProgress(10);
+        brushSize.setMax(100);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +133,23 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
+            }
+        });
+        brushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                size = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                String message = "Brush size: " + size;
+                drawLines();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -191,7 +215,7 @@ public class EditActivity extends FragmentActivity implements OnMapReadyCallback
                     newline = newLines.get(i);
                     startLatLng = newline.getStartlocation();
                     endLatLng = newline.getEndlocation();
-                    mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap).color(defaultColor));
+                    mMap.addPolyline(new PolylineOptions().add(endLatLng, startLatLng).jointType(2).startCap(roundCap).endCap(roundCap).color(defaultColor).width(size));
 
                 }
 
